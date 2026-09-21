@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>1. Potenzgesetz – Interaktives Training</title>
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#64748b;
+      --primary:#3157d5;
+      --primary-soft:#e9eeff;
+      --base:#1769aa;
+      --exp:#d97706;
+      --good:#14804a;
+      --good-bg:#eaf7f0;
+      --bad:#b42318;
+      --bad-bg:#fff0ef;
+      --border:#dce3ef;
+      --shadow:0 10px 28px rgba(25,42,70,.08);
+      --radius:20px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(49,87,213,.08), transparent 28rem),
+        var(--bg);
+      min-height:100vh;
+    }
+    button,input{font:inherit}
+    button{touch-action:manipulation}
+    .app{
+      width:min(1080px, calc(100% - 24px));
+      margin:0 auto;
+      padding:18px 0 42px;
+    }
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:20;
+      background:rgba(244,247,251,.94);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+      padding:10px 0 14px;
+    }
+    .top-card{
+      background:var(--card);
+      border:1px solid rgba(220,227,239,.9);
+      box-shadow:var(--shadow);
+      border-radius:18px;
+      padding:14px 16px;
+    }
+    .progress-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+    .progress-label{
+      font-weight:800;
+      letter-spacing:.01em;
+    }
+    .dots{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .dot{
+      width:14px;height:14px;border-radius:50%;
+      border:2px solid #a7b3c8;
+      background:#fff;
+      padding:0;
+      min-width:14px;
+    }
+    .dot.current{background:var(--primary);border-color:var(--primary)}
+    .dot.done{background:#8ca0ee;border-color:#8ca0ee}
+    .dot.locked{opacity:.5}
+    .page-nav{
+      display:flex;
+      gap:8px;
+      margin-top:12px;
+      flex-wrap:wrap;
+    }
+    .page-chip{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:999px;
+      padding:8px 12px;
+      min-height:40px;
+      font-weight:700;
+      color:#526177;
+    }
+    .page-chip.active{
+      color:#fff;background:var(--primary);border-color:var(--primary);
+    }
+    .page-chip:disabled{opacity:.42}
+    .hero{
+      margin:22px 0 18px;
+      padding:26px;
+      background:linear-gradient(135deg,#ffffff,#f8faff);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    h1{font-size:clamp(1.7rem,4vw,2.55rem);line-height:1.12;margin:0 0 10px}
+    h2{font-size:1.22rem;margin:0 0 8px}
+    h3{margin:0 0 10px;font-size:1.05rem}
+    p{line-height:1.55}
+    .subtitle{color:var(--muted);margin:0}
+    .rulebox{
+      margin-top:18px;
+      background:var(--primary-soft);
+      border:1px solid #cad4ff;
+      border-left:6px solid var(--primary);
+      border-radius:16px;
+      padding:16px 18px;
+    }
+    .math{
+      font-family:"Times New Roman", Georgia, serif;
+      font-size:1.35rem;
+      letter-spacing:.01em;
+    }
+    .math.large{font-size:1.7rem}
+    .base{color:var(--base);font-weight:800}
+    .exp{color:var(--exp);font-weight:800}
+    sup{font-size:.7em;vertical-align:super}
+    .grid{
+      display:grid;
+      gap:16px;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+    .task{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:20px;
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .task.done{
+      border-color:#a8d5bc;
+      box-shadow:0 10px 28px rgba(20,128,74,.09);
+    }
+    .task-number{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:34px;height:34px;border-radius:50%;
+      background:#eef2f9;color:#46556d;font-weight:800;
+      margin-bottom:12px;
+    }
+    .task.done .task-number{background:var(--good-bg);color:var(--good)}
+    .problem{
+      font-size:1.6rem;
+      margin:3px 0 18px;
+    }
+    .steps{
+      display:grid;
+      gap:12px;
+      background:#f8fafc;
+      border:1px solid #e6ebf2;
+      border-radius:15px;
+      padding:14px;
+    }
+    .step{
+      display:grid;
+      grid-template-columns:120px 1fr;
+      gap:12px;
+      align-items:center;
+    }
+    .step-label{
+      font-weight:800;
+      color:#526177;
+      font-size:.95rem;
+    }
+    input.answer{
+      width:100%;
+      min-height:48px;
+      border:2px solid #cbd5e1;
+      border-radius:12px;
+      padding:10px 12px;
+      background:#fff;
+      color:var(--text);
+      outline:none;
+    }
+    input.answer:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(49,87,213,.12)}
+    input.answer.good{border-color:var(--good);background:#f4fbf7}
+    input.answer.bad{border-color:#dd8b84;background:#fffafa}
+    .input-inline{
+      width:82px!important;
+      display:inline-block;
+      text-align:center;
+      min-height:44px!important;
+      padding:7px 8px!important;
+    }
+    .exponent-input{
+      width:56px!important;
+      min-height:34px!important;
+      padding:3px 6px!important;
+      font-size:.92rem!important;
+      line-height:1.1!important;
+      position:relative;
+      top:-0.15em;
+      vertical-align:baseline;
+      border-radius:10px!important;
+    }
+    .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .btn{
+      border:0;
+      border-radius:13px;
+      padding:12px 16px;
+      min-height:48px;
+      font-weight:800;
+      cursor:pointer;
+      transition:.15s transform,.15s opacity,.15s background;
+    }
+    .btn:active{transform:scale(.98)}
+    .btn-primary{background:var(--primary);color:white}
+    .btn-soft{background:#eef2f9;color:#324158}
+    .btn-good{background:var(--good);color:#fff}
+    .btn:disabled{opacity:.42;cursor:not-allowed;transform:none}
+    .feedback{
+      min-height:30px;
+      margin-top:12px;
+      padding:9px 11px;
+      border-radius:12px;
+      font-weight:700;
+      display:none;
+    }
+    .feedback.good{display:block;background:var(--good-bg);color:var(--good)}
+    .feedback.bad{display:block;background:var(--bad-bg);color:var(--bad)}
+    .page{
+      display:none;
+      animation:fade .18s ease-out;
+    }
+    .page.active{display:block}
+    @keyframes fade{from{opacity:.25;transform:translateY(5px)}to{opacity:1;transform:none}}
+    .page-complete{
+      display:none;
+      margin:20px 0;
+      background:var(--good-bg);
+      border:1px solid #bfe1cc;
+      color:#11663d;
+      border-radius:18px;
+      padding:18px;
+      font-weight:800;
+      text-align:center;
+    }
+    .page-complete.show{display:block}
+    .footer-nav{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      margin-top:22px;
+    }
+    .choice-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin:10px 0 0;
+    }
+    .choice{
+      border:2px solid #cbd5e1;
+      background:#fff;
+      border-radius:12px;
+      padding:11px 15px;
+      font-weight:800;
+      min-height:46px;
+    }
+    .choice.selected{border-color:var(--primary);background:var(--primary-soft);color:#2543a9}
+    .choice.wrong-choice{border-color:#d99a94;background:#fff5f4;color:#9f2d22}
+    .choice.correct-choice{border-color:#8bc2a3;background:#eff9f3;color:#126c40}
+    .hidden{display:none!important}
+    .fraction{
+      display:inline-grid;
+      grid-template-rows:auto 2px auto;
+      gap:8px;
+      align-items:center;
+      justify-items:center;
+      min-width:90px;
+      margin:4px 0 12px;
+    }
+    .fraction .bar{height:2px;background:#374151;width:100%}
+    .factor-area{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    .factor-row{
+      min-height:58px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:7px;
+      flex-wrap:wrap;
+      background:#fff;
+      border:1px solid #e1e7ef;
+      border-radius:14px;
+      padding:10px;
+    }
+    .factor-btn{
+      border:2px solid transparent;
+      background:#eef3f8;
+      min-width:46px;
+      min-height:46px;
+      border-radius:10px;
+      font-family:"Times New Roman",Georgia,serif;
+      font-size:1.35rem;
+      font-weight:800;
+      color:var(--base);
+      padding:5px 10px;
+    }
+    .factor-btn.selected{
+      border-color:var(--primary);
+      background:#e8edff;
+      box-shadow:0 0 0 3px rgba(49,87,213,.1);
+    }
+    .factor-btn.cancelled{
+      color:#c32020;
+      background:#fff0f0;
+      text-decoration-line:line-through;
+      text-decoration-thickness:3px;
+      text-decoration-color:#c32020;
+      opacity:.86;
+    }
+    .times{color:#75849b;font-family:Georgia,serif}
+    .cancel-instruction{
+      color:#526177;
+      font-size:.93rem;
+      margin:6px 0 0;
+    }
+    .report{
+      margin-top:20px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .report-head{padding:20px;border-bottom:1px solid var(--border)}
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+      padding:18px;
+    }
+    .stat{
+      background:#f8fafc;
+      border:1px solid #e4e9f0;
+      border-radius:15px;
+      padding:16px;
+      text-align:center;
+    }
+    .stat b{display:block;font-size:1.7rem;margin-bottom:4px}
+    .table-wrap{overflow:auto}
+    table{width:100%;border-collapse:collapse;min-width:660px}
+    th,td{padding:12px 14px;border-bottom:1px solid #e8edf3;text-align:left}
+    th{background:#f7f9fc;color:#4c5b72;font-size:.92rem}
+    .self{
+      margin:18px;
+      padding:18px;
+      border-radius:16px;
+      background:linear-gradient(135deg,#eef3ff,#fbfcff);
+      border:1px solid #dbe3ff;
+    }
+    .review-list{
+      margin:12px 0 0;
+      padding-left:20px;
+      line-height:1.65;
+    }
+    .reset-wrap{text-align:center;margin-top:24px}
+    .tiny{font-size:.85rem;color:var(--muted)}
+    @media (max-width:780px){
+      .grid{grid-template-columns:1fr}
+      .step{grid-template-columns:1fr;gap:6px}
+      .hero{padding:20px}
+      .app{width:min(100% - 14px,1080px)}
+      .stats{grid-template-columns:1fr}
+      .footer-nav{flex-direction:column-reverse}
+      .footer-nav .btn{width:100%}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="top-card">
+      <div class="progress-row">
+        <div id="progressLabel" class="progress-label">Seite 1 von 5</div>
+        <div id="dots" class="dots" aria-label="Fortschritt"></div>
+      </div>
+      <div id="pageNav" class="page-nav"></div>
+    </div>
+  </div>
+
+  <main id="pages"></main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const STORAGE_KEY = "potenzgesetz_training_v1";
+
+  const pages = [
+    {
+      id:1,
+      title:"1. Potenzen mit gleicher Basis multiplizieren",
+      subtitle:"Starte mit dem Grundprinzip: gleiche Basis behalten, Exponenten addieren.",
+      tasks:[
+        {id:"p1t1", type:"mul-basic", base:"x", exps:[2,5], topic:"Multiplikation"},
+        {id:"p1t2", type:"mul-basic", base:"a", exps:[4,3], topic:"Multiplikation"},
+        {id:"p1t3", type:"mul-basic", base:"b", exps:[6,2], topic:"Multiplikation"},
+        {id:"p1t4", type:"mul-basic", base:"y", exps:[3,7], topic:"Multiplikation"}
+      ]
+    },
+    {
+      id:2,
+      title:"2. Jetzt bist du dran!",
+      subtitle:"Baue den Rechenweg selbst auf. Bei drei Faktoren werden alle Exponenten addiert.",
+      tasks:[
+        {id:"p2t1", type:"mul-build", base:"m", exps:[5,8], topic:"Multiplikation"},
+        {id:"p2t2", type:"mul-build", base:"c", exps:[3,6,2], topic:"Multiplikation"},
+        {id:"p2t3", type:"mul-build", base:"p", exps:[4,3,5], topic:"Multiplikation"}
+      ]
+    },
+    {
+      id:3,
+      title:"3. Potenzen kürzen",
+      subtitle:"Kürze gleiche Faktoren aktiv weg. So wird sichtbar, warum bei der Division die Exponenten subtrahiert werden.",
+      tasks:[
+        {id:"p3t1", type:"cancel", base:"x", exps:[5,2], topic:"Kürzen"},
+        {id:"p3t2", type:"cancel", base:"a", exps:[6,3], topic:"Kürzen"},
+        {id:"p3t3", type:"cancel", base:"b", exps:[7,4], topic:"Kürzen"},
+        {id:"p3t4", type:"cancel", base:"y", exps:[8,5], topic:"Kürzen"}
+      ]
+    },
+    {
+      id:4,
+      title:"4. Welche Rechenregel brauchst du?",
+      subtitle:"Entscheide zuerst: Exponenten addieren oder subtrahieren?",
+      tasks:[
+        {id:"p4t1", type:"mixed", op:"mul", base:"x", exps:[4,7], topic:"Multiplikation"},
+        {id:"p4t2", type:"mixed", op:"div", base:"a", exps:[9,4], topic:"Division"},
+        {id:"p4t3", type:"mixed", op:"mul", base:"b", exps:[3,6], topic:"Multiplikation"},
+        {id:"p4t4", type:"mixed", op:"div", base:"y", exps:[10,3], topic:"Division"}
+      ]
+    },
+    {
+      id:5,
+      title:"5. Potenz-Profi",
+      subtitle:"Abschluss-Challenge: Löse die Aufgaben selbstständig und achte auf jeden Rechenschritt.",
+      tasks:[
+        {id:"p5t1", type:"final", op:"mul", base:"x", exps:[6,5], topic:"Multiplikation"},
+        {id:"p5t2", type:"final", op:"div", base:"a", exps:[12,7], topic:"Division"},
+        {id:"p5t3", type:"final", op:"mul", base:"b", exps:[4,3,2], topic:"Multiplikation"}
+      ]
+    }
+  ];
+
+  const allTasks = pages.flatMap(p => p.tasks);
+
+  function freshState(){
+    const taskState = {};
+    allTasks.forEach(t => taskState[t.id] = {
+      done:false,
+      corrections:0,
+      firstSuccessAttempt:null,
+      selectedRule:null,
+      cancelledNum:[],
+      cancelledDen:[],
+      selectedFactor:null
+    });
+    return {currentPage:1, maxUnlocked:1, tasks:taskState};
+  }
+
+  let state = loadState();
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return freshState();
+      const parsed = JSON.parse(raw);
+      const base = freshState();
+      if(parsed && typeof parsed === "object"){
+        base.currentPage = Math.min(5, Math.max(1, parsed.currentPage || 1));
+        base.maxUnlocked = Math.min(5, Math.max(1, parsed.maxUnlocked || 1));
+        allTasks.forEach(t=>{
+          if(parsed.tasks && parsed.tasks[t.id]){
+            base.tasks[t.id] = Object.assign(base.tasks[t.id], parsed.tasks[t.id]);
+          }
+        });
+      }
+      if(base.currentPage > base.maxUnlocked) base.currentPage = base.maxUnlocked;
+      return base;
+    }catch(e){
+      return freshState();
+    }
+  }
+
+  function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  function expHTML(n){ return "<sup class='exp'>" + n + "</sup>"; }
+  function powerHTML(base,n){ return "<span class='base'>" + base + "</span>" + expHTML(n); }
+  function opSymbol(op){ return op==="mul" ? " · " : " : "; }
+
+  function problemHTML(task){
+    return task.exps.map(e=>powerHTML(task.base,e)).join(task.op==="div" ? " : " : " · ");
+  }
+
+  function taskById(id){ return allTasks.find(t=>t.id===id); }
+
+  function pageDone(pageNum){
+    const p = pages[pageNum-1];
+    return p.tasks.every(t => state.tasks[t.id].done);
+  }
+
+  function totalSolved(){ return allTasks.filter(t=>state.tasks[t.id].done).length; }
+
+  function render(){
+    renderTop();
+    renderPages();
+    attachGlobalHandlers();
+    window.scrollTo({top:0, behavior:"instant"});
+  }
+
+  function renderTop(){
+    document.getElementById("progressLabel").textContent = "Seite " + state.currentPage + " von 5";
+    const dots = document.getElementById("dots");
+    dots.innerHTML = "";
+    for(let i=1;i<=5;i++){
+      const d = document.createElement("button");
+      d.className = "dot";
+      d.setAttribute("aria-label","Seite "+i);
+      if(i < state.currentPage) d.classList.add("done");
+      if(i === state.currentPage) d.classList.add("current");
+      if(i > state.maxUnlocked){ d.classList.add("locked"); d.disabled = true; }
+      d.addEventListener("click", ()=>goToPage(i));
+      dots.appendChild(d);
+    }
+
+    const nav = document.getElementById("pageNav");
+    nav.innerHTML = "";
+    for(let i=1;i<=5;i++){
+      const b = document.createElement("button");
+      b.className = "page-chip" + (i===state.currentPage ? " active" : "");
+      b.textContent = "Seite " + i + (i>state.maxUnlocked ? " 🔒" : "");
+      b.disabled = i > state.maxUnlocked;
+      b.addEventListener("click", ()=>goToPage(i));
+      nav.appendChild(b);
+    }
+  }
+
+  function renderPages(){
+    const root = document.getElementById("pages");
+    root.innerHTML = "";
+    pages.forEach(page=>{
+      const sec = document.createElement("section");
+      sec.className = "page" + (page.id===state.currentPage ? " active" : "");
+      sec.dataset.page = page.id;
+
+      let heroExtra = "";
+      if(page.id===1){
+        heroExtra = `
+          <div class="rulebox">
+            <h2>Regel</h2>
+            <p>Bei gleicher Basis werden beim Multiplizieren die Exponenten <b>addiert</b>.</p>
+            <div class="math large">${powerHTML("x",3)} · ${powerHTML("x",4)}
+              = <span class="base">x</span><sup class="exp">(3 + 4)</sup>
+              = ${powerHTML("x",7)}
+            </div>
+          </div>`;
+      }
+      sec.innerHTML = `
+        <div class="hero">
+          <h1>${page.title}</h1>
+          <p class="subtitle">${page.subtitle}</p>
+          ${heroExtra}
+        </div>
+        <div class="grid">${page.tasks.map(renderTaskCard).join("")}</div>
+        <div id="complete-${page.id}" class="page-complete ${pageDone(page.id) ? "show" : ""}">
+          ✅ Seite geschafft! Du kannst weitergehen.
+        </div>
+        ${page.id===5 && pageDone(5) ? renderReport() : ""}
+        <div class="footer-nav">
+          <button class="btn btn-soft" id="backBtn" ${page.id===1 ? "disabled" : ""}>← Zurück</button>
+          ${page.id<5 ? `<button class="btn btn-primary" id="nextBtn" ${pageDone(page.id) ? "" : "disabled"}>Weiter →</button>` : ""}
+        </div>
+      `;
+      root.appendChild(sec);
+    });
+    bindTaskHandlers();
+  }
+
+  function renderTaskCard(task){
+    const s = state.tasks[task.id];
+    if(task.type==="mul-basic") return renderMulBasic(task,s);
+    if(task.type==="mul-build") return renderMulBuild(task,s);
+    if(task.type==="cancel") return renderCancel(task,s);
+    if(task.type==="mixed") return renderMixed(task,s);
+    return renderFinal(task,s);
+  }
+
+  function cardStart(task,s){
+    const num = allTasks.indexOf(task)+1;
+    return `<article class="task ${s.done ? "done" : ""}" id="card-${task.id}">
+      <div class="task-number">${num}</div>`;
+  }
+
+  function cardEnd(task,s, hint){
+    return `
+      <div class="btn-row">
+        <button class="btn ${s.done ? "btn-good" : "btn-primary"} check-btn" data-task="${task.id}" ${s.done ? "disabled" : ""}>
+          ${s.done ? "Gelöst ✓" : "Prüfen"}
+        </button>
+      </div>
+      <div id="fb-${task.id}" class="feedback ${s.done ? "good" : ""}" ${s.done ? "style='display:block'" : ""}>
+        ${s.done ? "✅ Richtig!" : ""}
+      </div>
+      <div class="tiny">Korrekturen: <span id="corr-${task.id}">${s.corrections}</span></div>
+      </article>`;
+  }
+
+  function renderMulBasic(task,s){
+    const sum = task.exps.reduce((a,b)=>a+b,0);
+    return cardStart(task,s) + `
+      <div class="problem math">${problemHTML(task)}</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-label">Schritt 1 · Basis</div>
+          <input class="answer" data-role="base" data-task="${task.id}" autocomplete="off" inputmode="text" placeholder="z. B. x" ${s.done ? `value="${task.base}" disabled` : ""}>
+        </div>
+        <div class="step">
+          <div class="step-label">Schritt 2 · Exponenten</div>
+          <div class="math">
+            <input class="answer input-inline exponent-input" data-role="e1" data-task="${task.id}" inputmode="numeric" ${s.done ? `value="${task.exps[0]}" disabled` : ""}> +
+            <input class="answer input-inline exponent-input" data-role="e2" data-task="${task.id}" inputmode="numeric" ${s.done ? `value="${task.exps[1]}" disabled` : ""}>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-label">Schritt 3 · Ergebnis</div>
+          <div class="math"><span class="base">${task.base}</span><sup><input class="answer input-inline exponent-input" data-role="result" data-task="${task.id}" inputmode="numeric" ${s.done ? `value="${sum}" disabled` : ""}></sup></div>
+        </div>
+      </div>
+    ` + cardEnd(task,s,"");
+  }
+
+  function renderMulBuild(task,s){
+    const sum = task.exps.reduce((a,b)=>a+b,0);
+    const expr = task.exps.join(" + ");
+    return cardStart(task,s) + `
+      <div class="problem math">${problemHTML(task)}</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-label">Zwischenschritt</div>
+          <div class="math"><span class="base">${task.base}</span><sup>(<input class="answer" style="width:180px;display:inline-block" data-role="expr" data-task="${task.id}" autocomplete="off" placeholder="${task.exps.join(" + ")}" ${s.done ? `value="${expr}" disabled` : ""}>)</sup></div>
+        </div>
+        <div class="step">
+          <div class="step-label">Ergebnis</div>
+          <div class="math"><span class="base">${task.base}</span><sup><input class="answer input-inline exponent-input" data-role="result" data-task="${task.id}" inputmode="numeric" ${s.done ? `value="${sum}" disabled` : ""}></sup></div>
+        </div>
+      </div>
+    ` + cardEnd(task,s,"");
+  }
+
+  function factorButtons(task, zone, count, cancelled){
+    let out = "";
+    for(let i=0;i<count;i++){
+      const isCancelled = cancelled.includes(i);
+      out += `<button type="button" class="factor-btn ${isCancelled ? "cancelled" : ""}" data-task="${task.id}" data-zone="${zone}" data-index="${i}" ${isCancelled ? "disabled" : ""}>${task.base}</button>`;
+      if(i<count-1) out += `<span class="times">·</span>`;
+    }
+    return out;
+  }
+
+  function renderCancel(task,s){
+    const n = task.exps[0], d = task.exps[1], result = n-d;
+    const allCancelled = s.cancelledDen.length===d;
+    return cardStart(task,s) + `
+      <div class="problem math">
+        <span class="fraction">
+          <span>${powerHTML(task.base,n)}</span>
+          <span class="bar"></span>
+          <span>${powerHTML(task.base,d)}</span>
+        </span>
+      </div>
+      <div class="steps">
+        <div>
+          <h3>1. Kürze gleiche Faktoren</h3>
+          <div class="factor-area">
+            <div class="factor-row" aria-label="Zähler">${factorButtons(task,"num",n,s.cancelledNum)}</div>
+            <div style="height:2px;background:#374151;margin:0 7%"></div>
+            <div class="factor-row" aria-label="Nenner">${factorButtons(task,"den",d,s.cancelledDen)}</div>
+          </div>
+          <p class="cancel-instruction">Tippe zuerst einen Faktor im Zähler und danach einen gleichen Faktor im Nenner an. Gekürzte Faktoren werden rot durchgestrichen.</p>
+        </div>
+        <div class="${allCancelled ? "" : "hidden"}" id="aftercancel-${task.id}">
+          <div class="step">
+            <div class="step-label">2. Exponenten</div>
+            <div class="math">${task.base}<sup>(<input class="answer input-inline exponent-input" data-role="n" data-task="${task.id}" inputmode="numeric" ${s.done ? `value="${n}" disabled` : ""}> − <input class="answer input-inline exponent-input" data-role="d" data-task="${task.id}" inputmode="numeric" ${s.done ? `value="${d}" disabled` : ""}>)</sup></div>
+          </div>
+          <div class="step">
+            <div class="step-label">3. Ergebnis</div>
+            <div class="math"><span class="base">${task.base}</span><sup><input class="answer input-inline exponent-input" data-role="result" data-task="${task.id}" inputmode="numeric" ${s.done ? `value="${result}" disabled` : ""}></sup></div>
+          </div>
+        </div>
+      </div>
+    ` + cardEnd(task,s,"");
+  }
+
+  function renderMixed(task,s){
+    const expected = task.op==="mul" ? "add" : "sub";
+    const res = task.op==="mul" ? task.exps.reduce((a,b)=>a+b,0) : task.exps[0]-task.exps[1];
+    const opText = task.op==="mul" ? " + " : " − ";
+    const chosen = s.selectedRule;
+    return cardStart(task,s) + `
+      <div class="problem math">${problemHTML(task)}</div>
+      <div class="steps">
+        <div>
+          <div class="step-label">Was passiert mit den Exponenten?</div>
+          <div class="choice-row">
+            <button type="button" class="choice rule-btn ${chosen==="add" ? "selected" : ""}" data-task="${task.id}" data-rule="add" ${s.done ? "disabled" : ""}>addieren</button>
+            <button type="button" class="choice rule-btn ${chosen==="sub" ? "selected" : ""}" data-task="${task.id}" data-rule="sub" ${s.done ? "disabled" : ""}>subtrahieren</button>
+          </div>
+        </div>
+        <div class="${chosen ? "" : "hidden"}" id="mixedsteps-${task.id}">
+          <div class="step">
+            <div class="step-label">Zwischenschritt</div>
+            <div class="math"><span class="base">${task.base}</span><sup>(<input class="answer input-inline exponent-input" data-role="e1" data-task="${task.id}" inputmode="numeric" ${s.done ? `value="${task.exps[0]}" disabled` : ""}>${opText}<input class="answer input-inline exponent-input" data-role="e2" data-task="${task.id}" inputmode="numeric" ${s.done ? `value="${task.exps[1]}" disabled` : ""}>)</sup></div>
+          </div>
+          <div class="step">
+            <div class="step-label">Ergebnis</div>
+            <div class="math"><span class="base">${task.base}</span><sup><input class="answer input-inline exponent-input" data-role="result" data-task="${task.id}" inputmode="numeric" ${s.done ? `value="${res}" disabled` : ""}></sup></div>
+          </div>
+        </div>
+      </div>
+    ` + cardEnd(task,s,"");
+  }
+
+  function renderFinal(task,s){
+    const isMul = task.op==="mul";
+    const res = isMul ? task.exps.reduce((a,b)=>a+b,0) : task.exps[0]-task.exps[1];
+    const symbol = isMul ? "+" : "−";
+    const expectedExpr = task.exps.join(" " + symbol + " ");
+    return cardStart(task,s) + `
+      <div class="problem math">${problemHTML(task)}</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-label">Rechenweg</div>
+          <div class="math"><span class="base">${task.base}</span><sup>(<input class="answer" style="width:190px;display:inline-block" data-role="expr" data-task="${task.id}" autocomplete="off" placeholder="Exponenten verknüpfen" ${s.done ? `value="${expectedExpr}" disabled` : ""}>)</sup></div>
+        </div>
+        <div class="step">
+          <div class="step-label">Ergebnis</div>
+          <div class="math"><span class="base">${task.base}</span><sup><input class="answer input-inline exponent-input" data-role="result" data-task="${task.id}" inputmode="numeric" ${s.done ? `value="${res}" disabled` : ""}></sup></div>
+        </div>
+      </div>
+    ` + cardEnd(task,s,"");
+  }
+
+  function normalizeExpr(v){
+    return String(v||"")
+      .toLowerCase()
+      .replace(/\s+/g,"")
+      .replace(/[−–]/g,"-")
+      .replace(/[·*]/g,"+");
+  }
+
+  function read(taskId, role){
+    const el = document.querySelector(`[data-task="${taskId}"][data-role="${role}"]`);
+    return el ? el.value.trim() : "";
+  }
+
+  function markInput(taskId, role, good){
+    const el = document.querySelector(`[data-task="${taskId}"][data-role="${role}"]`);
+    if(!el) return;
+    el.classList.remove("good","bad");
+    el.classList.add(good ? "good" : "bad");
+  }
+
+  function setFeedback(taskId, ok, text){
+    const fb = document.getElementById("fb-"+taskId);
+    if(!fb) return;
+    fb.className = "feedback " + (ok ? "good" : "bad");
+    fb.textContent = (ok ? "✅ " : "❌ ") + text;
+  }
+
+  function failTask(task, hint){
+    const s = state.tasks[task.id];
+    s.corrections++;
+    saveState();
+    const corr = document.getElementById("corr-"+task.id);
+    if(corr) corr.textContent = s.corrections;
+    setFeedback(task.id,false,"Noch nicht ganz. " + hint);
+  }
+
+  function succeedTask(task){
+    const s = state.tasks[task.id];
+    s.done = true;
+    s.firstSuccessAttempt = s.corrections + 1;
+    saveState();
+    setFeedback(task.id,true,"Richtig!");
+    refreshAfterTask(task);
+  }
+
+  function refreshAfterTask(task){
+    const p = pages.find(pg=>pg.tasks.some(t=>t.id===task.id));
+    if(pageDone(p.id) && p.id<5 && state.maxUnlocked < p.id+1){
+      state.maxUnlocked = p.id+1;
+    }
+    saveState();
+    renderTop();
+    renderPages();
+    attachGlobalHandlers();
+    const card = document.getElementById("card-"+task.id);
+    if(card) card.scrollIntoView({behavior:"smooth",block:"center"});
+  }
+
+  function checkTask(task){
+    if(state.tasks[task.id].done) return;
+
+    if(task.type==="mul-basic"){
+      const expected = task.exps.reduce((a,b)=>a+b,0);
+      const checks = {
+        base: read(task.id,"base").toLowerCase()===task.base.toLowerCase(),
+        e1: Number(read(task.id,"e1"))===task.exps[0],
+        e2: Number(read(task.id,"e2"))===task.exps[1],
+        result: Number(read(task.id,"result"))===expected
+      };
+      Object.keys(checks).forEach(r=>markInput(task.id,r,checks[r]));
+      if(Object.values(checks).every(Boolean)) succeedTask(task);
+      else failTask(task,"Behalte die Basis bei und addiere die Exponenten.");
+      return;
+    }
+
+    if(task.type==="mul-build"){
+      const expectedExpr = task.exps.join("+");
+      const expectedRes = task.exps.reduce((a,b)=>a+b,0);
+      const exprOK = normalizeExpr(read(task.id,"expr"))===expectedExpr;
+      const resOK = Number(read(task.id,"result"))===expectedRes;
+      markInput(task.id,"expr",exprOK); markInput(task.id,"result",resOK);
+      if(exprOK && resOK) succeedTask(task);
+      else failTask(task,"Schau dir die Exponenten noch einmal an. Was passiert beim Multiplizieren?");
+      return;
+    }
+
+    if(task.type==="cancel"){
+      const n=task.exps[0], d=task.exps[1], result=n-d;
+      const s=state.tasks[task.id];
+      const allCancelled=s.cancelledDen.length===d && s.cancelledNum.length===d;
+      if(!allCancelled){
+        failTask(task,"Kürze zuerst alle möglichen gleichen Faktoren im Zähler und Nenner.");
+        return;
+      }
+      const checks = {
+        n:Number(read(task.id,"n"))===n,
+        d:Number(read(task.id,"d"))===d,
+        result:Number(read(task.id,"result"))===result
+      };
+      Object.keys(checks).forEach(r=>markInput(task.id,r,checks[r]));
+      if(Object.values(checks).every(Boolean)) succeedTask(task);
+      else failTask(task,"Übertrage die Exponenten des Bruchs in die Subtraktion und bestimme dann den Rest.");
+      return;
+    }
+
+    if(task.type==="mixed"){
+      const s=state.tasks[task.id];
+      const expectedRule = task.op==="mul" ? "add" : "sub";
+      const res = task.op==="mul" ? task.exps[0]+task.exps[1] : task.exps[0]-task.exps[1];
+      const checks = {
+        rule:s.selectedRule===expectedRule,
+        e1:Number(read(task.id,"e1"))===task.exps[0],
+        e2:Number(read(task.id,"e2"))===task.exps[1],
+        result:Number(read(task.id,"result"))===res
+      };
+      if(s.selectedRule){
+        document.querySelectorAll(`.rule-btn[data-task="${task.id}"]`).forEach(b=>{
+          b.classList.remove("wrong-choice","correct-choice");
+          if(b.dataset.rule===s.selectedRule) b.classList.add(checks.rule ? "correct-choice" : "wrong-choice");
+        });
+      }
+      ["e1","e2","result"].forEach(r=>markInput(task.id,r,checks[r]));
+      if(Object.values(checks).every(Boolean)) succeedTask(task);
+      else failTask(task, task.op==="mul" ? "Bei der Multiplikation werden die Exponenten addiert." : "Bei der Division werden die Exponenten subtrahiert.");
+      return;
+    }
+
+    if(task.type==="final"){
+      const isMul=task.op==="mul";
+      const expectedExpr=normalizeExpr(task.exps.join(isMul?"+":"-"));
+      const expectedRes=isMul ? task.exps.reduce((a,b)=>a+b,0) : task.exps[0]-task.exps[1];
+      const exprOK=normalizeExpr(read(task.id,"expr"))===expectedExpr;
+      const resOK=Number(read(task.id,"result"))===expectedRes;
+      markInput(task.id,"expr",exprOK); markInput(task.id,"result",resOK);
+      if(exprOK && resOK) succeedTask(task);
+      else failTask(task,"Prüfe zuerst, ob multipliziert oder dividiert wird, und verknüpfe dann die Exponenten passend.");
+    }
+  }
+
+  function bindTaskHandlers(){
+    document.querySelectorAll(".check-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const task=taskById(btn.dataset.task);
+        if(task) checkTask(task);
+      });
+    });
+
+    document.querySelectorAll(".rule-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id=btn.dataset.task;
+        const s=state.tasks[id];
+        if(s.done) return;
+        s.selectedRule=btn.dataset.rule;
+        saveState();
+        document.querySelectorAll(`.rule-btn[data-task="${id}"]`).forEach(b=>b.classList.toggle("selected",b===btn));
+        const steps=document.getElementById("mixedsteps-"+id);
+        if(steps) steps.classList.remove("hidden");
+      });
+    });
+
+    document.querySelectorAll(".factor-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=>handleFactorClick(btn));
+    });
+  }
+
+  function handleFactorClick(btn){
+    const id=btn.dataset.task, zone=btn.dataset.zone, idx=Number(btn.dataset.index);
+    const s=state.tasks[id];
+    if(s.done || btn.classList.contains("cancelled")) return;
+
+    if(!s.selectedFactor){
+      if(zone!=="num"){
+        setFeedback(id,false,"Beginne mit einem Faktor im Zähler.");
+        return;
+      }
+      s.selectedFactor={zone,idx};
+      saveState();
+      btn.classList.add("selected");
+      setFeedback(id,true,"Faktor im Zähler gewählt. Wähle jetzt einen gleichen Faktor im Nenner.");
+      return;
+    }
+
+    const prev=s.selectedFactor;
+    if(zone==="num"){
+      document.querySelectorAll(`.factor-btn[data-task="${id}"]`).forEach(b=>b.classList.remove("selected"));
+      s.selectedFactor={zone,idx};
+      saveState();
+      btn.classList.add("selected");
+      setFeedback(id,true,"Neuen Zählerfaktor gewählt. Jetzt den passenden Faktor im Nenner anklicken.");
+      return;
+    }
+
+    if(zone==="den"){
+      s.cancelledNum.push(prev.idx);
+      s.cancelledDen.push(idx);
+      s.selectedFactor=null;
+      saveState();
+      const task=taskById(id);
+      renderPages();
+      attachGlobalHandlers();
+      const card=document.getElementById("card-"+id);
+      if(card) card.scrollIntoView({behavior:"smooth",block:"center"});
+      const complete = state.tasks[id].cancelledDen.length === task.exps[1];
+      setFeedback(id,true, complete ? "Alle möglichen Faktoren sind gekürzt. Jetzt die Potenzregel ergänzen." : "Richtig gekürzt! Kürze weiter.");
+    }
+  }
+
+  function renderReport(){
+    const total=allTasks.length;
+    const immediate=allTasks.filter(t=>state.tasks[t.id].corrections===0 && state.tasks[t.id].done).length;
+    const corrections=allTasks.reduce((sum,t)=>sum+state.tasks[t.id].corrections,0);
+    const review=allTasks.filter(t=>state.tasks[t.id].corrections>=2);
+
+    let badge, message;
+    if(corrections<=3){
+      badge="🏆 Potenz-Profi";
+      message="Sehr sicher gearbeitet.";
+    }else if(corrections<=9){
+      badge="⭐ Auf gutem Weg";
+      message="Einige Aufgaben mussten verbessert werden.";
+    }else{
+      badge="💪 Weiterüben lohnt sich";
+      message="Schau dir besonders die Aufgaben mit mehreren Korrekturen noch einmal an.";
+    }
+
+    const rows=allTasks.map(t=>{
+      const s=state.tasks[t.id];
+      return `<tr>
+        <td class="math">${problemHTML(t)}</td>
+        <td>${t.topic}</td>
+        <td>${s.firstSuccessAttempt ? s.firstSuccessAttempt + ". Versuch" : "—"}</td>
+        <td>${s.corrections}</td>
+      </tr>`;
+    }).join("");
+
+    const reviewHTML=review.length
+      ? `<ul class="review-list">${review.map(t=>`<li class="math">${problemHTML(t)} <span style="font-family:inherit;font-size:.9rem;color:#526177">(${state.tasks[t.id].corrections} Korrekturen)</span></li>`).join("")}</ul>`
+      : `<p>Keine – du musstest bei keiner Aufgabe zweimal oder öfter korrigieren.</p>`;
+
+    return `
+      <section class="report">
+        <div class="report-head">
+          <h2>Deine Auswertung</h2>
+          <p class="subtitle">Hier siehst du alle 18 Aufgaben und deine Korrekturversuche.</p>
+        </div>
+        <div class="stats">
+          <div class="stat"><b>${total}</b>Aufgaben insgesamt</div>
+          <div class="stat"><b>${immediate}</b>Sofort richtig</div>
+          <div class="stat"><b>${corrections}</b>Korrekturen insgesamt</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Aufgabe</th><th>Thema</th><th>Korrekt beim …</th><th>Korrekturen</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <div class="self">
+          <h2>Deine Selbsteinschätzung</h2>
+          <h3 style="font-size:1.35rem;margin-top:12px">${badge}</h3>
+          <p>${message}</p>
+          <h3 style="margin-top:18px">Diese Aufgaben solltest du noch einmal anschauen:</h3>
+          ${reviewHTML}
+        </div>
+        <div class="reset-wrap">
+          <button id="resetBtn" class="btn btn-soft">Training zurücksetzen</button>
+          <p class="tiny">Dabei werden Fortschritt und Korrekturstatistik dieses Trainings gelöscht.</p>
+        </div>
+      </section>`;
+  }
+
+  function goToPage(pageNum){
+    if(pageNum<1 || pageNum>5 || pageNum>state.maxUnlocked) return;
+    state.currentPage=pageNum;
+    saveState();
+    render();
+  }
+
+  function attachGlobalHandlers(){
+    const active=document.querySelector(`.page[data-page="${state.currentPage}"]`);
+    if(!active) return;
+    const back=active.querySelector("#backBtn");
+    const next=active.querySelector("#nextBtn");
+    if(back) back.addEventListener("click",()=>goToPage(state.currentPage-1));
+    if(next) next.addEventListener("click",()=>{
+      if(pageDone(state.currentPage)) goToPage(state.currentPage+1);
+    });
+    const reset=active.querySelector("#resetBtn");
+    if(reset) reset.addEventListener("click",()=>{
+      if(confirm("Möchtest du wirklich alle Ergebnisse und Korrekturversuche löschen?")){
+        state=freshState();
+        saveState();
+        render();
+      }
+    });
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
