@@ -72,6 +72,10 @@
     button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
     .finalInput:focus,.inputFrac input:focus{background:#ead0f0!important;border-color:#55305f!important;box-shadow:0 0 0 4px rgba(116,68,127,.22),inset 0 0 0 1px rgba(255,255,255,.85)}
     .finalInput::placeholder,.inputFrac input::placeholder{color:#705b77;opacity:1;-webkit-text-fill-color:#705b77}
+    .savebar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:-2px 0 14px;padding:10px 12px;border:1px solid var(--border);border-radius:14px;background:#fbf7fd}
+    .save-status{display:flex;align-items:center;gap:8px;font-size:.9rem;color:var(--muted);font-weight:650}
+    .save-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+    .reset-progress{min-height:40px;padding:7px 11px;font-size:.9rem}
     @media(max-width:720px){.grid2,.grid3{grid-template-columns:1fr}.hero{align-items:flex-start}.hero-art{width:82px;height:82px;font-size:2.4rem}.app{padding:12px}}
   </style>
 </head>
@@ -94,6 +98,11 @@
     <button class="tabbtn" data-tab="merken" type="button">📘 Merken</button>
     <button class="tabbtn" data-tab="abschluss" type="button">🏁 Abschluss</button>
   </nav>
+
+  <div class="savebar" aria-live="polite">
+    <div class="save-status"><span class="save-dot" aria-hidden="true"></span><span id="saveStatus">Fortschritt wird auf diesem Gerät automatisch gespeichert.</span></div>
+    <button id="resetProgress" class="btn reset-progress" type="button">Fortschritt zurücksetzen</button>
+  </div>
 
   <section id="tab-labor" class="space">
     <div class="panel">
@@ -186,9 +195,35 @@
   const show=(el,msg,ok=null)=>{el.innerHTML=msg;el.classList.remove('hidden','good','bad');if(ok===true)el.classList.add('good');if(ok===false)el.classList.add('bad')};
   const hide=el=>el.classList.add('hidden');
 
+  // Automatische lokale Speicherung (pro Browser/Gerät)
+  const STORAGE_KEY='mathematik6_brueche_gemischte_zahlen_v1';
+  let restoring=false, saveTimer=null;
+  function readSaved(){try{const raw=localStorage.getItem(STORAGE_KEY);return raw?JSON.parse(raw):null}catch(e){return null}}
+  const savedState=readSaved();
+  function fieldKey(el){
+    if(el.id)return 'id:'+el.id;
+    const card=el.closest('.pictureTask,.mixedTask,.improperTask');
+    if(card){const ident=card.classList.contains('pictureTask')?'p'+card.dataset.id:card.classList.contains('mixedTask')?'m'+card.dataset.i:'i'+card.dataset.i;return ident+':'+(el.dataset.role||el.name||el.type)+':'+[...card.querySelectorAll('input,select')].indexOf(el)}
+    if(el.name)return 'name:'+el.name+':'+el.value;
+    return null;
+  }
+  function collectFields(){const out={};$$('input,select').forEach(el=>{const k=fieldKey(el);if(!k)return;out[k]={value:el.value,checked:!!el.checked,type:el.type||el.tagName.toLowerCase()}});return out}
+  function collectVisibility(){const ids=['sortMove','detective','detStep2','detStep3','detStep4','detResult','uStep2','uStep3','uDone','finalPage1','finalMove','finalPage2','finalPage3','finalSummary','scobees','picturePageFb','mixedPageFb','improperPageFb'];const o={};ids.forEach(id=>{const el=$('#'+id);if(el)o[id]={hidden:el.classList.contains('hidden'),good:el.classList.contains('good'),bad:el.classList.contains('bad'),disabled:!!el.disabled}});return o}
+  function saveProgress(){
+    if(restoring)return;
+    try{
+      const active=$('.tabbtn.active')?.dataset.tab||'labor';
+      const state={version:1,activeTab:active,fields:collectFields(),visibility:collectVisibility(),mission,missionDone:{...missionDone},buildCells:[...buildBar.querySelectorAll('span')].map((x,i)=>x.classList.contains('on')?i:null).filter(x=>x!==null),sortOrder:[...sortOrder],sortAnswers:{...sortAnswers},dn,dd,conv,cs,attempts:[...attempts],finalPage:!$('#finalPage3').classList.contains('hidden')?3:!$('#finalPage2').classList.contains('hidden')?2:1,finalMeter:$('#finalMeter').style.width||'0%',savedAt:Date.now()};
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+      const st=$('#saveStatus');if(st)st.textContent='Fortschritt automatisch gespeichert ✓';
+    }catch(e){const st=$('#saveStatus');if(st)st.textContent='Automatisches Speichern ist in diesem Browser nicht verfügbar.'}
+  }
+  function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveProgress,80)}
+
   $$('.tabbtn[data-tab]').forEach(b=>b.addEventListener('click',()=>{
     $$('.tabbtn[data-tab]').forEach(x=>x.classList.toggle('active',x===b));
     $$('section[id^="tab-"]').forEach(s=>s.classList.toggle('hidden',s.id!=='tab-'+b.dataset.tab));
+    queueSave();
   }));
 
   // Labor
@@ -203,7 +238,7 @@
   labN.addEventListener('input',updateLab);labD.addEventListener('input',updateLab);updateLab();
 
   // Bruch bauen
-  const buildD=$('#buildD'),buildBar=$('#buildBar');let mission=null;const missionDone={half:false,threequarters:false,real:false};
+  const buildD=$('#buildD'),buildBar=$('#buildBar');let mission=savedState?.mission||null;const missionDone={half:!!savedState?.missionDone?.half,threequarters:!!savedState?.missionDone?.threequarters,real:!!savedState?.missionDone?.real};
   function renderBuild(){buildBar.innerHTML='';for(let i=0;i<+buildD.value;i++){const s=document.createElement('span');s.tabIndex=0;const toggle=()=>{s.classList.toggle('on');checkBuild()};s.addEventListener('click',toggle);s.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle()}});buildBar.appendChild(s)}checkBuild()}
   function checkBuild(){
     const d=+buildD.value,n=buildBar.querySelectorAll('.on').length;$('#buildN').textContent=n;$('#buildDS').textContent=d;
@@ -211,33 +246,41 @@
     const ok=mission==='half'?n*2===d:mission==='threequarters'?n*4===d*3:n>0&&n<d;
     if(ok){missionDone[mission]=true;$('#missionInfo').textContent='✅ Mission geschafft! Wähle die nächste Mission.';$$('.mission').forEach(b=>b.classList.toggle('done',missionDone[b.dataset.mission]))}
     else $('#missionInfo').textContent='Mission aktiv. Verändere Nenner oder gefärbte Teile.';
+    queueSave();
   }
   buildD.addEventListener('change',renderBuild);$('#buildReset').addEventListener('click',renderBuild);
   $$('.mission').forEach(b=>b.addEventListener('click',()=>{mission=b.dataset.mission;$$('.mission').forEach(x=>x.classList.toggle('selected',x===b&&!missionDone[x.dataset.mission]));$('#missionInfo').textContent='✅ Mission ausgewählt. Baue jetzt unten den passenden Bruch.';checkBuild()}));renderBuild();
 
   // Sortieren
-  const sortData=[[2,7,'Echter Bruch'],[9,4,'Unechter Bruch'],[15,5,'Ganze Zahl'],[5,9,'Echter Bruch'],[11,6,'Unechter Bruch'],[24,8,'Ganze Zahl']];let sortAnswers={};
-  function renderSort(){sortAnswers={};const area=$('#sortArea');area.innerHTML='';[...sortData].sort(()=>Math.random()-.5).forEach(([n,d,a],i)=>{const c=document.createElement('div');c.className='card';c.dataset.answer=a;c.innerHTML=`<div class="sortFrac">${frac(n,d,'bigfrac')}</div><div class="choiceRow"><button class="btn" type="button">Echter Bruch</button><button class="btn" type="button">Unechter Bruch</button><button class="btn" type="button">Ganze Zahl</button></div><div class="hidden hint sortHint"></div>`;[...c.querySelectorAll('button')].forEach(btn=>btn.addEventListener('click',()=>{sortAnswers[i]=btn.textContent;[...c.querySelectorAll('button')].forEach(x=>x.classList.remove('primary'));btn.classList.add('primary')}));area.appendChild(c)});hide($('#sortSummary'));hide($('#sortMove'));hide($('#detective'))}
+  const sortData=[[2,7,'Echter Bruch'],[9,4,'Unechter Bruch'],[15,5,'Ganze Zahl'],[5,9,'Echter Bruch'],[11,6,'Unechter Bruch'],[24,8,'Ganze Zahl']];
+  let sortOrder=Array.isArray(savedState?.sortOrder)&&savedState.sortOrder.length===sortData.length?[...savedState.sortOrder]:sortData.map((_,i)=>i).sort(()=>Math.random()-.5);
+  let sortAnswers=savedState?.sortAnswers?{...savedState.sortAnswers}:{};
+  function renderSort(reset=false){if(reset){sortOrder=sortData.map((_,i)=>i).sort(()=>Math.random()-.5);sortAnswers={}}const area=$('#sortArea');area.innerHTML='';sortOrder.forEach((dataIndex,i)=>{const [n,d,a]=sortData[dataIndex];const c=document.createElement('div');c.className='card';c.dataset.answer=a;c.dataset.dataIndex=dataIndex;c.innerHTML=`<div class="sortFrac">${frac(n,d,'bigfrac')}</div><div class="choiceRow"><button class="btn" type="button">Echter Bruch</button><button class="btn" type="button">Unechter Bruch</button><button class="btn" type="button">Ganze Zahl</button></div><div class="hidden hint sortHint"></div>`;[...c.querySelectorAll('button')].forEach(btn=>{if(sortAnswers[i]===btn.textContent)btn.classList.add('primary');btn.addEventListener('click',()=>{sortAnswers[i]=btn.textContent;[...c.querySelectorAll('button')].forEach(x=>x.classList.remove('primary'));btn.classList.add('primary');queueSave()})});area.appendChild(c)});if(reset){hide($('#sortSummary'));hide($('#sortMove'));hide($('#detective'));queueSave()}}
   function sortHint(actual,chosen){if(!chosen)return'Wähle zuerst eine Möglichkeit aus.';if(actual==='Ganze Zahl')return'Prüfe die Division Zähler : Nenner. Bleibt dabei ein Rest?';if(chosen==='Ganze Zahl')return'Prüfe zuerst, ob die Division wirklich ohne Rest aufgeht.';return'Vergleiche Zähler und Nenner noch einmal sorgfältig.'}
-  $('#sortCheck').addEventListener('click',()=>{let right=0;$$('#sortArea>.card').forEach((c,i)=>{const actual=c.dataset.answer,chosen=sortAnswers[i],h=c.querySelector('.sortHint');c.classList.remove('good','bad');if(chosen===actual){right++;c.classList.add('good');show(h,'✅ Richtig.',true)}else{c.classList.add('bad');show(h,'💡 '+sortHint(actual,chosen),false)}});show($('#sortSummary'),`${right} von 6 richtig.`,right===6);if(right===6)$('#sortMove').classList.remove('hidden')});
-  $('#sortReset').addEventListener('click',renderSort);$('#sortMoveDone').addEventListener('click',()=>{$('#sortMove').classList.add('good');$('#sortMoveDone').disabled=true;$('#detective').classList.remove('hidden')});renderSort();
+  $('#sortCheck').addEventListener('click',()=>{let right=0;$$('#sortArea>.card').forEach((c,i)=>{const actual=c.dataset.answer,chosen=sortAnswers[i],h=c.querySelector('.sortHint');c.classList.remove('good','bad');if(chosen===actual){right++;c.classList.add('good');show(h,'✅ Richtig.',true)}else{c.classList.add('bad');show(h,'💡 '+sortHint(actual,chosen),false)}});show($('#sortSummary'),`${right} von 6 richtig.`,right===6);if(right===6)$('#sortMove').classList.remove('hidden');queueSave()});
+  $('#sortReset').addEventListener('click',()=>renderSort(true));$('#sortMoveDone').addEventListener('click',()=>{$('#sortMove').classList.add('good');$('#sortMoveDone').disabled=true;$('#detective').classList.remove('hidden');queueSave()});renderSort();
 
   // Detektivin
-  let dn=0,dd=0;
+  let dn=Number(savedState?.dn)||0,dd=Number(savedState?.dd)||0;
   $('#det1').addEventListener('click',()=>{dn=+$('#detN').value;dd=+$('#detD').value;if(!Number.isInteger(dn)||!Number.isInteger(dd)||dn<=0||dd<=0){show($('#detFb1'),'💡 Verwende positive ganze Zahlen.',false);return}show($('#detFb1'),'✅ Der Bruch ist gespeichert.',true);$('#detStep2').classList.remove('hidden')});
   $$('.detCompare').forEach(b=>b.addEventListener('click',()=>{const actual=dn<dd?'lt':dn>dd?'gt':'eq';if(b.dataset.v===actual){show($('#detFb2'),'✅ Richtig verglichen.',true);$('#detStep3').classList.remove('hidden')}else show($('#detFb2'),'💡 Vergleiche die beiden Zahlen noch einmal direkt miteinander.',false)}));
   $$('.detWhole').forEach(b=>b.addEventListener('click',()=>{const actual=dn%dd===0?'yes':'no';if(b.dataset.v===actual){show($('#detFb3'),'✅ Richtig geprüft.',true);$('#detStep4').classList.remove('hidden')}else show($('#detFb3'),'💡 Führe die Division aus und achte darauf, ob ein Rest bleibt.',false)}));
   $$('.detClass').forEach(b=>b.addEventListener('click',()=>{const actual=kind(dn,dd);if(b.dataset.v===actual){show($('#detFb4'),'✅ Richtig eingeordnet.',true);$('#detResult').innerHTML=`Dein Bruch ${frac(dn,dd,'bigfrac')} wurde vollständig untersucht.`;$('#detResult').classList.remove('hidden')}else show($('#detFb4'),'💡 Nutze deine Ergebnisse aus Schritt 2 und 3. Welche Bruchart passt dazu?',false)}));
 
   // Umwandeln
-  let conv=null,cs=0;$('#convStart').addEventListener('click',()=>{const n=+$('#convN').value,d=+$('#convD').value;if(!(n>0&&d>0))return;conv={n,d,q:Math.floor(n/d),r:n%d};cs=0;renderConv()});
+  let conv=savedState?.conv||null,cs=Number.isInteger(savedState?.cs)?savedState.cs:0;$('#convStart').addEventListener('click',()=>{const n=+$('#convN').value,d=+$('#convD').value;if(!(n>0&&d>0))return;conv={n,d,q:Math.floor(n/d),r:n%d};cs=0;renderConv()});
   function renderConv(){const{n,d}=conv;const arr=[`${n} : ${d}`,`Bestimme die Anzahl ganzer Teile.`,`Bestimme anschließend den Rest.`,`Setze ganze Zahl, Rest und Nenner zur gemischten Zahl zusammen.`];$('#convSteps').innerHTML=arr.slice(0,cs+1).map((s,i)=>`<div class="stepRow"><span class="stepDot">${i+1}</span><div>${s}</div></div>`).join('');$('#convNext').classList.toggle('hidden',cs>=3)}
   $('#convNext').addEventListener('click',()=>{if(conv&&cs<3){cs++;renderConv()}});
-  const attempts=[0,0,0];
+  const attempts=Array.isArray(savedState?.attempts)?savedState.attempts.slice(0,3):[0,0,0];
   function guided(btn,input,correct,fb,next,index,hints){$(btn).addEventListener('click',()=>{const v=+$(input).value;if(v===correct){show($(fb),'✅ Dieser Schritt stimmt.',true);if(next)$(next).classList.remove('hidden');return}attempts[index]++;show($(fb),'💡 '+hints[Math.min(attempts[index]-1,hints.length-1)],false)})}
   guided('#u1Btn','#u1',3,'#u1Fb','#uStep2',0,['Suche das größte Vielfache des Nenners, das den Zähler nicht überschreitet.','Schreibe einige Vielfache des Nenners auf und vergleiche sie mit dem Zähler.']);
   guided('#u2Btn','#u2',2,'#u2Fb','#uStep3',1,['Der Rest ist das, was nach den vollständigen Nennergruppen übrig bleibt.','Nutze: Zähler − (ganze Zahl · Nenner).']);
   guided('#u3Btn','#u3',5,'#u3Fb','#uDone',2,['Beim Umwandeln verändert sich der Nenner nicht.','Vergleiche mit dem Nenner des ursprünglichen Bruchs.']);
+
+  // Änderungen an Eingaben/Klicks automatisch sichern.
+  root.addEventListener('input',queueSave);
+  root.addEventListener('change',queueSave);
+  root.addEventListener('click',e=>{if(e.target.closest('button'))setTimeout(queueSave,0)});
 
   // Abschluss-Grafiken
   function pie(parts,filled){let p='';const cx=50,cy=50,r=43;for(let i=0;i<parts;i++){const a=-Math.PI/2+i*2*Math.PI/parts,b=-Math.PI/2+(i+1)*2*Math.PI/parts,x1=cx+r*Math.cos(a),y1=cy+r*Math.sin(a),x2=cx+r*Math.cos(b),y2=cy+r*Math.sin(b);p+=`<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2} Z" fill="${i<filled?'#d9b6dc':'#ffffff'}" stroke="#2b2430" stroke-width="1.5"/>`}return `<svg class="fractionPic" viewBox="0 0 100 100" aria-label="${filled} von ${parts} Teilen gefärbt">${p}</svg>`}
@@ -263,10 +306,60 @@
   function checkImproperCard(card,t){const w=+card.querySelector('[data-role=whole]').value,n=+card.querySelector('[data-role=num]').value,d=+card.querySelector('[data-role=den]').value,fb=card.querySelector('[data-role=fb]');let hints=[];if(w!==t.w)hints.push('Teile den Zähler durch den Nenner und bestimme, wie viele ganze Nennergruppen enthalten sind.');if(n!==t.r)hints.push('Der neue Zähler ist der Rest der Division.');if(d!==t.d)hints.push('Der Nenner bleibt unverändert.');if(hints.length){show(fb,'💡 '+hints.join('<br>💡 '),false);card.classList.add('bad');card.classList.remove('good');return false}show(fb,'✅ Richtig umgewandelt.',true);card.classList.add('good');card.classList.remove('bad');return true}
 
   function setFinalPage(page){$('#finalPageBadge').textContent=`Seite ${page} von 3`;$('#finalMeter').style.width=`${page===1?0:page===2?33:66}%`}
-  $('#checkPicturePage').addEventListener('click',()=>{let all=true;$$('.pictureTask').forEach(c=>{if(!checkPictureCard(c,pictureTasks[+c.dataset.id]))all=false});if(all){show($('#picturePageFb'),'✅ Alle 6 Aufgaben dieser Seite sind richtig.',true);$('#finalMeter').style.width='33%';$('#finalMove').classList.remove('hidden')}else show($('#picturePageFb'),'Noch nicht alle Aufgaben stimmen. Nutze die Hinweise direkt bei den Aufgaben.',false)});
-  $('#finalMoveDone').addEventListener('click',()=>{$('#finalPage1').classList.add('hidden');$('#finalMove').classList.add('hidden');$('#finalPage2').classList.remove('hidden');setFinalPage(2);$('#finalPage2').scrollIntoView({behavior:'smooth',block:'start'})});
-  $('#checkMixedPage').addEventListener('click',()=>{let all=true;$$('.mixedTask').forEach(c=>{if(!checkMixedCard(c,mixedTasks[+c.dataset.i]))all=false});if(all){show($('#mixedPageFb'),'✅ Alle 5 Aufgaben dieser Seite sind richtig.',true);$('#finalMeter').style.width='66%';if(!$('#mixedPageFb').querySelector('button')){const next=document.createElement('button');next.type='button';next.className='btn primary';next.style.marginTop='10px';next.textContent='Weiter zu Seite 3';next.addEventListener('click',()=>{$('#finalPage2').classList.add('hidden');$('#finalPage3').classList.remove('hidden');setFinalPage(3);$('#finalPage3').scrollIntoView({behavior:'smooth',block:'start'})});$('#mixedPageFb').appendChild(next)}}else show($('#mixedPageFb'),'Noch nicht alle Aufgaben stimmen. Prüfe die Hinweise bei den einzelnen Aufgaben.',false)});
-  $('#checkImproperPage').addEventListener('click',()=>{let all=true;$$('.improperTask').forEach(c=>{if(!checkImproperCard(c,improperTasks[+c.dataset.i]))all=false});if(all){show($('#improperPageFb'),'✅ Alle 5 Aufgaben dieser Seite sind richtig.',true);$('#finalMeter').style.width='100%';$('#finalSummary').classList.remove('hidden');$('#scobees').classList.remove('hidden');$('#finalSummary').scrollIntoView({behavior:'smooth',block:'center'})}else show($('#improperPageFb'),'Noch nicht alle Aufgaben stimmen. Nutze die Hinweise und verbessere nur die markierten Aufgaben.',false)});
+
+  function applySavedFields(state){
+    if(!state?.fields)return;
+    // Zuerst Radiobuttons wiederherstellen, damit dynamische Umwandlungsfelder erzeugt werden.
+    $$('input[type=radio]').forEach(el=>{const k=fieldKey(el),v=state.fields[k];if(v?.checked){el.checked=true;el.dispatchEvent(new Event('change',{bubbles:true}))}});
+    $$('input,select').forEach(el=>{const k=fieldKey(el),v=state.fields[k];if(!v)return;if(el.type==='radio'||el.type==='checkbox')el.checked=!!v.checked;else el.value=v.value});
+  }
+  function restoreProgress(){
+    if(!savedState)return;
+    restoring=true;
+    try{
+      // Basiswerte vor den visuellen Zuständen.
+      applySavedFields(savedState);
+      updateLab();
+      // Bruch-Baukasten passend zur gespeicherten Nennerwahl neu aufbauen.
+      renderBuild();
+      (savedState.buildCells||[]).forEach(i=>{const cell=buildBar.children[i];if(cell)cell.classList.add('on')});
+      $$('.mission').forEach(b=>{b.classList.toggle('done',!!missionDone[b.dataset.mission]);b.classList.toggle('selected',mission===b.dataset.mission&&!missionDone[b.dataset.mission])});
+      checkBuild();
+      // Sortieren: Reihenfolge und Auswahl wurden bereits aus savedState erzeugt.
+      renderSort(false);
+      // Variablen aus Eingabefeldern aktualisieren.
+      dn=Number($('#detN').value)||dn;dd=Number($('#detD').value)||dd;
+      if(conv&&cs>=0)renderConv();
+      // Sichtbarkeit/Freischaltungen wiederherstellen.
+      Object.entries(savedState.visibility||{}).forEach(([id,v])=>{const el=$('#'+id);if(!el)return;el.classList.toggle('hidden',!!v.hidden);el.classList.toggle('good',!!v.good);el.classList.toggle('bad',!!v.bad);if('disabled' in el)el.disabled=!!v.disabled});
+      // Abschluss-Seite und Fortschrittsbalken.
+      const page=savedState.finalPage||1;
+      $('#finalPage1').classList.toggle('hidden',page!==1);
+      $('#finalPage2').classList.toggle('hidden',page!==2);
+      $('#finalPage3').classList.toggle('hidden',page!==3);
+      $('#finalPageBadge').textContent=`Seite ${page} von 3`;
+      $('#finalMeter').style.width=savedState.finalMeter||`${page===1?0:page===2?33:66}%`;
+      // Aktiven Reiter wieder öffnen.
+      const tab=savedState.activeTab||'labor';
+      $$('.tabbtn[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+      $$('section[id^="tab-"]').forEach(sec=>sec.classList.toggle('hidden',sec.id!=='tab-'+tab));
+      const st=$('#saveStatus');if(st)st.textContent='Gespeicherter Fortschritt wiederhergestellt ✓';
+    }finally{restoring=false}
+  }
+
+  $('#resetProgress').addEventListener('click',()=>{
+    const ok=window.confirm('Möchtest du deinen gespeicherten Fortschritt auf diesem Gerät wirklich zurücksetzen?');
+    if(!ok)return;
+    try{localStorage.removeItem(STORAGE_KEY)}catch(e){}
+    location.reload();
+  });
+  $('#checkPicturePage').addEventListener('click',()=>{let all=true;$$('.pictureTask').forEach(c=>{if(!checkPictureCard(c,pictureTasks[+c.dataset.id]))all=false});if(all){show($('#picturePageFb'),'✅ Alle 6 Aufgaben dieser Seite sind richtig.',true);$('#finalMeter').style.width='33%';$('#finalMove').classList.remove('hidden')}else show($('#picturePageFb'),'Noch nicht alle Aufgaben stimmen. Nutze die Hinweise direkt bei den Aufgaben.',false);queueSave()});
+  $('#finalMoveDone').addEventListener('click',()=>{$('#finalPage1').classList.add('hidden');$('#finalMove').classList.add('hidden');$('#finalPage2').classList.remove('hidden');setFinalPage(2);$('#finalPage2').scrollIntoView({behavior:'smooth',block:'start'});queueSave()});
+  $('#checkMixedPage').addEventListener('click',()=>{let all=true;$$('.mixedTask').forEach(c=>{if(!checkMixedCard(c,mixedTasks[+c.dataset.i]))all=false});if(all){show($('#mixedPageFb'),'✅ Alle 5 Aufgaben dieser Seite sind richtig.',true);$('#finalMeter').style.width='66%';if(!$('#mixedPageFb').querySelector('button')){const next=document.createElement('button');next.type='button';next.className='btn primary';next.style.marginTop='10px';next.textContent='Weiter zu Seite 3';next.addEventListener('click',()=>{$('#finalPage2').classList.add('hidden');$('#finalPage3').classList.remove('hidden');setFinalPage(3);$('#finalPage3').scrollIntoView({behavior:'smooth',block:'start'});queueSave()});$('#mixedPageFb').appendChild(next)}}else show($('#mixedPageFb'),'Noch nicht alle Aufgaben stimmen. Prüfe die Hinweise bei den einzelnen Aufgaben.',false);queueSave()});
+  $('#checkImproperPage').addEventListener('click',()=>{let all=true;$$('.improperTask').forEach(c=>{if(!checkImproperCard(c,improperTasks[+c.dataset.i]))all=false});if(all){show($('#improperPageFb'),'✅ Alle 5 Aufgaben dieser Seite sind richtig.',true);$('#finalMeter').style.width='100%';$('#finalSummary').classList.remove('hidden');$('#scobees').classList.remove('hidden');$('#finalSummary').scrollIntoView({behavior:'smooth',block:'center'})}else show($('#improperPageFb'),'Noch nicht alle Aufgaben stimmen. Nutze die Hinweise und verbessere nur die markierten Aufgaben.',false);queueSave()});
+
+  restoreProgress();
+  if(!savedState){const st=$('#saveStatus');if(st)st.textContent='Fortschritt wird auf diesem Gerät automatisch gespeichert.'}
 })();
 </script>
 </body>
