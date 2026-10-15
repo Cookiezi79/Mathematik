@@ -37,6 +37,33 @@
     .save-note{font-size:13px;color:var(--muted);text-align:center;margin:10px 0}
     @media(max-width:850px){.top-inner{grid-template-columns:1fr auto}.progress-wrap{grid-column:1/-1;grid-row:2}.hero,.model-layout{grid-template-columns:1fr}.path{grid-template-columns:repeat(5,minmax(100px,1fr));overflow:auto;padding-bottom:5px}.detect-grid{grid-template-columns:1fr}.formula-deck{grid-template-columns:1fr}.match-row{grid-template-columns:1fr}.match-row .check{grid-column:1/-1}.practice-grid{grid-template-columns:1fr}}
     @media(max-width:560px){main{padding:18px 12px 50px}.top-inner{padding:10px 12px;gap:10px}.brand strong{font-size:14px}.brand-mark{width:36px;height:36px}.reset{padding:6px 9px}.hero-copy,.mission,section.phase{padding:22px 18px}.hero h1{font-size:36px}.phase h2{font-size:26px}.phase-head{gap:12px}.phase-no{flex-basis:44px;height:44px}.model-card{padding:15px;min-height:0}.match-row{grid-template-columns:1fr}.match-options{grid-template-columns:1fr 1fr}.match-option{font-size:16px;min-height:62px}.match-row .check{grid-column:1/-1}.practice .prompt,.question .q-text{font-size:17px}}
+
+    /* Erweiterter entdeckender Lernweg (1. binomische Formel) */
+    [hidden]{display:none!important}
+    .discover-instruction{background:#e5f6f3;border-radius:12px;padding:12px;font-size:15px;line-height:1.45}
+    .model-small{text-align:center;color:var(--muted);font-size:13px;margin-top:8px}
+    .area-tap{width:100%;font-family:inherit;color:var(--ink);cursor:pointer;min-width:0;touch-action:manipulation}
+    .area-tap:focus-visible{outline:4px solid var(--blue);outline-offset:-4px}
+    .show-calc{display:block;width:100%;padding:10px;border-radius:12px;margin:16px 0 8px;border:2px solid #9ecad0;background:#fff;color:var(--ink);font-weight:750;min-height:48px;cursor:pointer}
+    .small-note{font-size:14px;color:var(--muted);margin:0 0 10px}
+    .experiment-mini{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px;background:#edf8f7;border-radius:11px;margin:10px 0}
+    .experiment-mini label{display:flex;flex-direction:column;font-size:14px;font-weight:800}
+    .experiment-mini input{width:100%;accent-color:var(--teal);min-height:32px}
+    .experiment-readout{border-radius:12px;background:#e5efff;padding:9px 12px;margin:10px 0;font-size:15px}
+    .experiment .input-row{grid-template-columns:minmax(0,1fr) auto}
+    .experiment input{font-size:17px}
+    .builder-card{margin:16px 0;border-color:#9acdbb}
+    .build-group{padding:13px 0;border-bottom:1px solid #d7e4e9}
+    .build-label{font-weight:850;margin:0 0 8px}
+    .build-choices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+    .build-option{border:2px solid #c6d8e4;background:#fff;color:var(--ink);border-radius:10px;min-height:51px;font-size:19px;font-weight:850;cursor:pointer;touch-action:manipulation}
+    .build-option.selected{background:#dff7f1;border-color:var(--teal);box-shadow:inset 0 0 0 1px var(--teal)}
+    .build-option:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+    .built-formula{padding:14px 10px;margin:14px 0;background:#fff5cb;border-radius:12px;font-weight:900;font-size:clamp(18px,2.5vw,25px);text-align:center;overflow-wrap:anywhere}
+    .built-formula span{color:#08766d;border-bottom:2px solid currentColor;padding:0 2px}
+    .hypothesis>.question{margin-bottom:16px}
+    @media(min-width:851px){.model-card{position:sticky;top:110px;align-self:start}}
+    @media(max-width:560px){.build-choices{gap:5px}.build-option{font-size:16px;min-height:51px}.experiment .input-row{grid-template-columns:minmax(0,1fr) auto}.experiment .check{padding:8px 10px}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
   </style>
 </head>
@@ -72,12 +99,17 @@
     var mode=here.indexOf("alle")>-1||here.indexOf("formeln-alle")>-1?"mixed":here.indexOf("formel-3")>-1?"third":here.indexOf("formel-2")>-1?"second":"first";
     var DATA={
       first:{
-        short:"1. binomische Formel",title:"Die 1. binomische Formel entdecken",subtitle:"Wie wird aus dem Quadrat einer Summe ein Term mit drei Gliedern?",rule:"Zwei gleich große Mischflächen sind der Schlüssel.",
+        short:"1. binomische Formel",title:"Die 1. binomische Formel entdecken",
+        subtitle:"Vom farbigen Quadrat zur eigenen Formel – Schritt für Schritt.",
+        rule:"Erst die Flächen erforschen, dann die Formel zusammensetzen!",
         formula:"(a + b)<sup>2</sup> = a<sup>2</sup> + 2ab + b<sup>2</sup>",kind:"plus",
         obs:[
-          ["Aus wie vielen Teilflächen besteht das Quadrat? ",["2","3","4"],2,"Zähle jedes farbige Rechteck einzeln.","Es gibt a², ab, ab und b²."],
-          ["Welche Teilfläche kommt zweimal vor?",["a²","ab","b²"],1,"Vergleiche die beiden orangefarbenen Rechtecke.","Beide haben die Seitenlängen a und b."],
-          ["Welche Fläche hat das Quadrat für a = 5 und b = 2?",["25","29","49"],2,"Die gesamte Seitenlänge ist a + b.","(5 + 2)² = 7²."]
+          ["Wie lang ist die gesamte Seite des großen Quadrats?",["a + b","a · b","a² + b²"],0,"Die Seite besteht aus zwei Strecken: a und b.","Addiere die beiden Teilstrecken, nicht ihre Flächen."],
+          ["In wie viele farbige Teilflächen ist das Quadrat zerlegt?",["2","3","4"],2,"Zähle auch die beiden orangenen Flächen einzeln.","Du erkennst ein blaues, zwei orange und ein rosa Feld."],
+          ["Wie berechnest du die Fläche des blauen Quadrats?",["2a","a²","a + a"],1,"Ein Quadrat mit Seitenlänge a hat die Fläche a · a.","Multipliziere a mit sich selbst."],
+          ["Welchen Flächeninhalt hat das rosafarbene Quadrat?",["b²","2b","a · b"],0,"Das rosa Feld ist ein Quadrat mit Seitenlänge b.","Für die Fläche rechnest du b · b."],
+          ["Welche Fläche hat EIN orangefarbenes Rechteck?",["a + b","a²","a · b"],2,"Ein Rechteck hat die Seitenlängen a und b.","Länge mal Breite ergibt a · b."],
+          ["Wie groß sind BEIDE orangefarbenen Rechtecke zusammen?",["2ab","a² + b²","ab²"],0,"Beide Rechtecke haben die Fläche ab.","Addiere ab + ab; das sind zwei gleiche Produkte."]
         ],
         hypotheses:[
           "(a+b)<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>",
@@ -86,21 +118,14 @@
         ],hypAnswer:1,
         matches:[
           ["(x+3)<sup>2</sup>","x<sup>2</sup>+6x+9"],
-          ["(2x+y)<sup>2</sup>","4x<sup>2</sup>+4xy+y<sup>2</sup>"],
-          ["(3a+2)<sup>2</sup>","9a<sup>2</sup>+12a+4"],
-          ["(m+4n)<sup>2</sup>","m<sup>2</sup>+8mn+16n<sup>2</sup>"]
+          ["(2x+y)<sup>2</sup>","4x<sup>2</sup>+4xy+y<sup>2</sup>"]
         ],
         detectives:[
-          ["(x+5)<sup>2</sup> = x<sup>2</sup>+25",false,"Das mittlere Glied 2·x·5 = 10x fehlt."],
-          ["(2a+b)<sup>2</sup> = 4a<sup>2</sup>+4ab+b<sup>2</sup>",true,"Alle drei Glieder sind richtig: (2a)², 2·2a·b und b²."],
-          ["(3x+2)<sup>2</sup> = 9x<sup>2</sup>+6x+4",false,"Das mittlere Glied ist 2·3x·2 = 12x."]
+          ["(x+5)<sup>2</sup> = x<sup>2</sup>+25",false,"Das mittlere Glied 2 · x · 5 = 10x wurde vergessen."]
         ],
         practice:[
-          ["(x+4)<sup>2</sup>",["x^2+8x+16"],"Bestimme zuerst x² und 4².","Das mittlere Glied lautet 2·x·4 = 8x."],
-          ["(a+7)<sup>2</sup>",["a^2+14a+49"],"Quadriere beide Summanden.","2·a·7 = 14a."],
-          ["(2x+3)<sup>2</sup>",["4x^2+12x+9"],"(2x)² = 4x².","2·2x·3 = 12x."],
-          ["(3m+n)<sup>2</sup>",["9m^2+6mn+n^2"],"Erstes Glied: (3m)².","Mittleres Glied: 2·3m·n."],
-          ["(2a+5b)<sup>2</sup>",["4a^2+20ab+25b^2"],"Quadriere 2a und 5b getrennt.","Mittleres Glied: 2·2a·5b = 20ab."]
+          ["(x+4)<sup>2</sup>",["x^2+8x+16"],"Quadriere x und 4 getrennt.","Das mittlere Glied ist 2 · x · 4 = 8x."],
+          ["(2a+3b)<sup>2</sup>",["4a^2+12ab+9b^2"],"Das erste Quadrat lautet (2a)² = 4a².","Für die Mitte rechnest du 2 · 2a · 3b = 12ab."]
         ]
       },
       second:{
@@ -200,9 +225,9 @@
         ]
       }
     };
-    var C=DATA[mode],total=16;
+    var C=DATA[mode],total=(mode==="first"?16:16);
     // Getrennter Fortschritt für jede der vier Varianten; bleibt nach Schließen/Neuladen erhalten.
-    var STORAGE_KEY="mathe8.binomische-entdecken.v4."+mode;
+    var STORAGE_KEY="mathe8.binomische-entdecken."+(mode==="first"?"v5":"v4")+"."+mode;
     function loadState(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"null")||{}}catch(e){return {}}}
     var remembered=loadState();
     var solved=remembered.solved||{},attempts=remembered.attempts||{};
@@ -211,15 +236,17 @@
     var picked=remembered.picked||{},feedbacks=remembered.feedbacks||{};
     var modelValues=remembered.modelValues||{},focusKey=remembered.focusKey||"f1";
     var cancelledFlag=Boolean(remembered.cancelledFlag);
+    var areaRevealed=remembered.areaRevealed||{},showNumeric=Boolean(remembered.showNumeric);
+    var builderSelections=remembered.builderSelections||{};
     function saveState(){
       var state={solved:solved,attempts:attempts,firstCorrect:firstCorrect,matchSelections:matchSelections,
         inputValues:inputValues,picked:picked,feedbacks:feedbacks,modelValues:modelValues,
-        focusKey:focusKey,cancelledFlag:cancelledFlag};
+        focusKey:focusKey,cancelledFlag:cancelledFlag,areaRevealed:areaRevealed,showNumeric:showNumeric,builderSelections:builderSelections};
       try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));return true}
       catch(e){var info=document.getElementById("saveStatus");if(info)info.textContent="⚠ Automatisches Speichern ist in diesem Browser nicht verfügbar.";return false}
     }
-    var phaseIds=[["o1","o2","o3"],["h1"],["m1","m2","m3","m4"],["d1","d2","d3"],["p1","p2","p3","p4","p5"]];
-    var phaseNames=[["Beobachten","Flächen & Muster"],["Vermuten","Regel formulieren"],["Prüfen","Verbindungen"],["Untersuchen","Fehlerdetektiv"],["Sichern","Selbst anwenden"]];
+    var phaseIds=(mode==="first"?[["o1","o2","o3","o4","o5","o6","o7","o8"],["h1","h2","h3"],["m1","m2"],["d1"],["p1","p2"]]:[["o1","o2","o3"],["h1"],["m1","m2","m3","m4"],["d1","d2","d3"],["p1","p2","p3","p4","p5"]]);
+    var phaseNames=(mode==="first"?[["Erkunden","8 Schritte"],["Herleiten","3 Schritte"],["Prüfen","2 Aufgaben"],["Fehler finden","1 Fall"],["Anwenden","2 Aufgaben"]]:[["Beobachten","Flächen & Muster"],["Vermuten","Regel formulieren"],["Prüfen","Verbindungen"],["Untersuchen","Fehlerdetektiv"],["Sichern","Selbst anwenden"]]);
     function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
     function qCard(id,label,q,options,answer,h1,h2){
       var b=options.map(function(x,i){return '<button class="choice" onclick="window.__mc(\''+id+'\','+i+','+answer+',this,\''+esc(h1).replace(/'/g,"&#39;")+'\',\''+esc(h2).replace(/'/g,"&#39;")+'\')">'+x+'</button>'}).join("");
@@ -233,9 +260,19 @@
           '<button class="formula-card" data-key="f3" onclick="window.__focus(this,\'f3\')"><strong>3. Formel</strong><div class="math">(a+b)(a−b)</div><small>Plus- und Minusklammer</small></button></div><div class="focus-note" id="focusNote"><b>1. Formel:</b> Zwei gleiche Plusklammern erzeugen zwei positive Mischprodukte.</div></div>';
       }
       var controls='<div class="controls"><div class="control"><label>a <b id="av">5</b></label><input id="aRange" type="range" min="3" max="9" value="'+(C.kind==="plus"?5:7)+'" oninput="window.__model()"></div><div class="control"><label>b <b id="bv">2</b></label><input id="bRange" type="range" min="1" max="5" value="2" oninput="window.__model()"></div></div>';
-      if(C.kind==="plus")return '<div class="model-card">'+controls+'<div class="formula-big">Fläche: (a+b)<sup>2</sup></div><div class="area-plus" id="plusGrid"><div class="cell c1">a²</div><div class="cell c2">ab</div><div class="cell c3">ab</div><div class="cell c4">b²</div></div><div class="legend"><span class="tag a">a²</span><span class="tag ab">2 · ab</span><span class="tag b">b²</span></div><div class="formula-result" id="numericResult"></div></div>';
+      if(C.kind==="plus")return '<div class="model-card">'+controls+'<div class="formula-big">Gesamte Fläche: (a+b)<sup>2</sup></div><p class="discover-instruction">👆 <b>Tippe auf jede Farbfläche</b>, um ihren Term aufzudecken. Verändere dann a und b mit den Reglern.</p><div class="area-plus" id="plusGrid"><button type="button" class="cell c1 area-tap" data-area="0" onclick="window.__tapArea(0)" aria-label="Blaues Quadrat aufdecken">?</button><button type="button" class="cell c2 area-tap" data-area="1" onclick="window.__tapArea(1)" aria-label="Oberes oranges Rechteck aufdecken">?</button><button type="button" class="cell c3 area-tap" data-area="2" onclick="window.__tapArea(2)" aria-label="Unteres oranges Rechteck aufdecken">?</button><button type="button" class="cell c4 area-tap" data-area="3" onclick="window.__tapArea(3)" aria-label="Rosafarbenes Quadrat aufdecken">?</button></div><div class="model-small">Blau: Quadrat · Orange: 2 Rechtecke · Rosa: Quadrat</div><button type="button" class="show-calc" id="calcToggle" onclick="window.__toggleCalc()" aria-expanded="false">🧮 Zahlenkontrolle anzeigen</button><div class="formula-result" id="numericResult" hidden></div></div>';
       if(C.kind==="minus")return '<div class="model-card">'+controls+'<div class="formula-big">Fläche: (a−b)<sup>2</sup></div><div class="minus-wrap"><div class="minus-square" id="minusSquare"><div class="minus-core" id="minusCore">(a−b)²</div><div class="minus-strip-v" id="stripV">−ab</div><div class="minus-strip-h" id="stripH">−ab</div><div class="minus-overlap" id="overlap">+b²</div></div></div><div class="signed-sum"><span class="pos">a²</span><span class="neg">−ab</span><span class="neg">−ab</span><span class="addback">+b²</span></div><div class="formula-result" id="numericResult"></div></div>';
       return '<div class="model-card">'+controls+'<div class="formula-big">(a+b)(a−b)</div><div class="product-grid"><div class="cell c1">a²</div><div class="cell c2 middle">−ab</div><div class="cell c3 middle">+ab</div><div class="cell c4">−b²</div></div><div style="text-align:center"><button class="cancel-btn" onclick="window.__cancel(this)">Gegenterme aufheben</button></div><div class="formula-result" id="numericResult"></div></div>';
+    }
+    function experimentHtml(id,num,a,b,focus,question){
+      return '<article class="question experiment" id="q-'+id+'"><div class="q-label">Entdeckung '+num+' · Ausprobieren</div><div class="q-text">'+question+'</div><p class="small-note">Nutze die Regler im Flächenmodell. Es wird überprüft, ob du die passenden Werte eingestellt hast.</p><div class="experiment-mini"><label>Seite a: <b id="ma-'+id+'">5</b><input type="range" min="3" max="9" value="5" id="ra-'+id+'" oninput="window.__expRange(\''+id+'\',\'a\',this.value)"></label><label>Seite b: <b id="mb-'+id+'">2</b><input type="range" min="1" max="5" value="2" id="rb-'+id+'" oninput="window.__expRange(\''+id+'\',\'b\',this.value)"></label></div><p class="small-note">Diese Regler bewegen gleichzeitig das farbige Flächenmodell.</p><div class="experiment-readout">Eingestellt: <b id="a-'+id+'">a = ?</b> · <b id="b-'+id+'">b = ?</b></div><div class="input-row"><input class="answer-input" id="i-'+id+'" type="number" inputmode="numeric" placeholder="Fläche als Zahl" aria-label="Berechneter Flächeninhalt" oninput="window.__typing(\''+id+'\')" onkeydown="if(event.key===\'Enter\')window.__experiment(\''+id+'\')"><button class="check" onclick="window.__experiment(\''+id+'\')">Prüfen</button></div><div class="feedback" id="f-'+id+'"></div></article>';
+    }
+    function builderHtml(){
+      var terms=['a<sup>2</sup>','ab','2ab','b<sup>2</sup>'];
+      var titles=['Blaues Quadrat','Zwei orange Rechtecke','Rosa Quadrat'];
+      return '<article class="question builder-card" id="q-h2"><div class="q-label">Baue die Regel selbst</div><div class="q-text">Aus welchen drei Teilen setzt sich die gesamte Fläche zusammen?</div><p class="small-note">Tippe in jeder Zeile auf den passenden Baustein. Nutze das Flächenmodell als Hilfe.</p>'+titles.map(function(title,slot){
+        return '<div class="build-group"><div class="build-label">'+(slot+1)+'. '+title+'</div><div class="build-choices">'+terms.map(function(t,val){return '<button type="button" class="build-option" data-slot="'+slot+'" data-val="'+val+'" aria-pressed="false" onclick="window.__build('+slot+','+val+')">'+t+'</button>'}).join('')+'</div></div>';
+      }).join('')+'<div class="built-formula">(a+b)<sup>2</sup> = <span id="build0">?</span> + <span id="build1">?</span> + <span id="build2">?</span></div><button class="check" onclick="window.__checkBuild()">Meinen Term prüfen</button><div class="feedback" id="f-h2"></div></article>';
     }
     function render(){
       document.title=C.title+" · Mathe 8";
@@ -244,8 +281,14 @@
       document.getElementById("subtitle").textContent=C.subtitle;
       document.getElementById("missionRule").textContent=C.rule;
       document.getElementById("pathNav").innerHTML=phaseNames.map(function(p,i){return '<button id="nav'+i+'" class="'+(i?"locked":"")+'" onclick="window.__go('+i+')">'+(i+1)+'. '+p[0]+'<span>'+p[1]+'</span></button>'}).join("");
-      var obs=C.obs.map(function(o,i){return qCard("o"+(i+1),"Beobachtung "+(i+1),o[0],o[1],o[2],o[3],o[4])}).join("");
-      var hyp=qCard("h1","Deine Vermutung","Welche allgemeine Regel passt zu allen Beobachtungen?",C.hypotheses,C.hypAnswer,"Prüfe, ob alle Teilprodukte vorkommen.","Vergleiche mit den farbigen Flächen bzw. Teilprodukten.");
+      var obs=C.obs.map(function(o,i){return qCard("o"+(i+1),"Entdeckung "+(i+1),o[0],o[1],o[2],o[3],o[4])}).join("");
+      if(mode==="first")obs+=experimentHtml("o7",7,6,3,"Gesamtfläche","Stelle <b>a = 6</b> und <b>b = 3</b> ein. Wie groß ist die <b>gesamte Fläche</b> des Quadrats?")+
+        experimentHtml("o8",8,4,2,"Orangene Flächen","Stelle <b>a = 4</b> und <b>b = 2</b> ein. Wie groß sind <b>beide orangefarbenen Rechtecke zusammen</b>?");
+      var hyp=mode==="first"?(
+        qCard("h1","Zusammenfassen","Warum darfst du ab + ab als 2ab schreiben?",["Weil ab zweimal vorkommt","Weil sich a und b addieren","Weil ein Quadrat immer doppelt ist"],0,"Es gibt zwei gleich große Rechtecke.","Die Flächen ab und ab werden addiert: zwei mal ab.")+
+        builderHtml()+
+        qCard("h3","Deine Regel","Welche Formel entspricht deinem selbst gebauten Flächenterm?",C.hypotheses,C.hypAnswer,"Vergleiche die drei farbigen Anteile.","Der vollständige Term besteht aus a², 2ab und b².")
+      ):qCard("h1","Deine Vermutung","Welche allgemeine Regel passt zu allen Beobachtungen?",C.hypotheses,C.hypAnswer,"Prüfe, ob alle Teilprodukte vorkommen.","Vergleiche mit den farbigen Flächen bzw. Teilprodukten.");
       var opts=C.matches.map(function(x){return x[1]}).sort(function(a,b){return a.length-b.length});
       // Native <option>-Elemente rendern kein HTML: x<sup>2</sup> wurde zu x2.
       // Touch-Auswahl per Buttons zeigt jedes Quadrat korrekt hochgestellt.
@@ -263,11 +306,11 @@
           '<div class="square-help">Tippe auf <b>²</b>, um ein <b>hoch 2</b> einzufügen.</div><div class="math-preview" id="v-'+id+'" aria-live="polite">Dein Term: <b>…</b></div><div class="feedback" id="f-'+id+'"></div></article>';
       }).join("");
       document.getElementById("app").innerHTML=
-        '<section class="phase paper" id="phase0"><div class="phase-head"><div class="phase-no">1</div><div><h2>Beobachten & verändern</h2><p>Nutze das Modell. Verändere die Werte und achte auf wiederkehrende Teile.</p></div></div><div class="model-layout">'+modelHtml()+'<div class="questions">'+obs+'</div></div></section>'+
-        '<section class="phase paper locked" id="phase1"><div class="phase-head"><div class="phase-no">2</div><div><h2>Eine Regel vermuten</h2><p>Entscheide erst jetzt, welche Regel deine Beobachtungen erklärt.</p></div></div><div class="hypothesis">'+hyp+'<div class="formula-big" id="revealedFormula" style="display:none">'+C.formula+'</div></div></section>'+
-        '<section class="phase paper locked" id="phase2"><div class="phase-head"><div class="phase-no">3</div><div><h2>Die Vermutung prüfen</h2><p>Tippe auf den passenden Ergebnisterm. Hochzahlen sind gut lesbar dargestellt.</p></div></div><div class="match-board">'+matches+'</div></section>'+
-        '<section class="phase paper locked" id="phase3"><div class="phase-head"><div class="phase-no">4</div><div><h2>Fehlerdetektiv</h2><p>Ist die Rechnung richtig? Entscheide und untersuche anschließend die Begründung.</p></div></div><div class="detect-grid">'+detectives+'</div></section>'+
-        '<section class="phase paper locked" id="phase4"><div class="phase-head"><div class="phase-no">5</div><div><h2>Erkenntnis sichern</h2><p>Schreibe deinen Ergebnisterm. Tippe für Quadrate einfach auf <b>²</b> neben dem Eingabefeld.</p></div></div><div class="rule-tape">'+C.formula+'</div><div class="practice-grid" style="margin-top:22px">'+practices+'</div><div class="completion" id="completion"><div class="big" id="finalScore"></div><h2>Entdeckungsreise abgeschlossen!</h2><p id="finalText"></p></div></section>';
+        '<section class="phase paper" id="phase0"><div class="phase-head"><div class="phase-no">1</div><div><h2>'+(mode==="first"?"Das Quadrat erforschen":"Beobachten & verändern")+'</h2><p>'+(mode==="first"?"Ca. 10–12 Minuten: Farbflächen aufdecken, mit den Reglern experimentieren und eigene Berechnungen anstellen.":"Nutze das Modell. Verändere die Werte und achte auf wiederkehrende Teile.")+'</p></div></div><div class="model-layout">'+modelHtml()+'<div class="questions">'+obs+'</div></div></section>'+
+        '<section class="phase paper locked" id="phase1"><div class="phase-head"><div class="phase-no">2</div><div><h2>'+(mode==="first"?"Die Formel selbst herleiten":"Eine Regel vermuten")+'</h2><p>'+(mode==="first"?"Ca. 5–7 Minuten: gleiche Flächen zusammenfassen und die drei Teile der Formel selbst auswählen.":"Entscheide erst jetzt, welche Regel deine Beobachtungen erklärt.")+'</p></div></div><div class="hypothesis">'+hyp+'<div class="formula-big" id="revealedFormula" style="display:none">'+C.formula+'</div></div></section>'+
+        '<section class="phase paper locked" id="phase2"><div class="phase-head"><div class="phase-no">3</div><div><h2>Die Vermutung prüfen</h2><p>Prüfe deine gefundene Regel mit '+(mode==="first"?"zwei neuen Beispielen":"passenden Ergebnistermen")+'. Tippe auf den passenden Term.</p></div></div><div class="match-board">'+matches+'</div></section>'+
+        '<section class="phase paper locked" id="phase3"><div class="phase-head"><div class="phase-no">4</div><div><h2>Fehlerdetektiv</h2><p>'+(mode==="first"?"Nur ein typischer Denkfehler: Entdeckst du ihn?":"Ist die Rechnung richtig? Entscheide und untersuche anschließend die Begründung.")+'</p></div></div><div class="detect-grid">'+detectives+'</div></section>'+
+        '<section class="phase paper locked" id="phase4"><div class="phase-head"><div class="phase-no">5</div><div><h2>Erkenntnis sichern</h2><p>'+(mode==="first"?"Zum Abschluss zwei selbstständige Anwendungen – eine leichte und eine schwierigere.":"Schreibe deinen Ergebnisterm.")+' Tippe für Quadrate auf die Taste <b>²</b> neben dem Eingabefeld.</p></div></div><div class="rule-tape">'+C.formula+'</div><div class="practice-grid" style="margin-top:22px">'+practices+'</div><div class="completion" id="completion"><div class="big" id="finalScore"></div><h2>Entdeckungsreise abgeschlossen!</h2><p id="finalText"></p></div></section>';
       restoreControls();updateModel();updateState();
     }
     function restoreControls(){
@@ -282,7 +325,8 @@
         var q=document.getElementById("q-"+id);if(!q)return;
         q.classList.add("solved");
         if(id[0]==="m")q.querySelectorAll(".match-option").forEach(function(b){b.disabled=true});
-        if(id[0]==="p"){
+        if(id==="h2")q.querySelectorAll(".build-option").forEach(function(b){b.disabled=true});
+        if(id[0]==="p"||id==="o7"||id==="o8"){
           var input=document.getElementById("i-"+id);if(input)input.disabled=true;
           var square=q.querySelector(".square-key");if(square)square.disabled=true;
         }
@@ -297,6 +341,12 @@
       Object.keys(feedbacks).forEach(function(id){
         var f=document.getElementById("f-"+id);if(f){f.className="feedback "+(feedbacks[id].ok?"ok":"no");f.innerHTML=feedbacks[id].html}
       });
+      if(mode==="first"){
+        [0,1,2,3].forEach(function(n){if(areaRevealed[n]){var t=document.querySelector('.area-tap[data-area="'+n+'"]');if(t)t.innerHTML=['a<sup>2</sup>','ab','ab','b<sup>2</sup>'][n]}});
+        Object.keys(builderSelections).forEach(function(slot){chooseBuildAppearance(+slot,builderSelections[slot])});
+        var panel=document.getElementById("numericResult"),toggle=document.getElementById("calcToggle");
+        if(panel&&toggle){panel.hidden=!showNumeric;toggle.setAttribute("aria-expanded",String(showNumeric));toggle.textContent=showNumeric?"🧮 Zahlenkontrolle verbergen":"🧮 Zahlenkontrolle anzeigen"}
+      }
       if(modelValues.a!=null){var a=document.getElementById("aRange");if(a)a.value=modelValues.a}
       if(modelValues.b!=null){var b=document.getElementById("bRange");if(b)b.value=modelValues.b}
       if(cancelledFlag){document.querySelectorAll(".middle").forEach(function(x){x.classList.add("cancelled")});var c=document.querySelector(".cancel-btn");if(c)c.textContent="Gegenterme wieder zeigen"}
@@ -332,7 +382,7 @@
         if(sec){sec.classList.toggle("locked",!unlocked)}
         if(nav){nav.classList.toggle("locked",!unlocked);nav.classList.toggle("done",done)}
       }
-      if(solved.h1){var rf=document.getElementById("revealedFormula");if(rf)rf.style.display="block"}
+      if(solved[mode==="first"?"h3":"h1"]){var rf=document.getElementById("revealedFormula");if(rf)rf.style.display="block"}
       if(n===total){
         var c=document.getElementById("completion");c.classList.add("show");
         document.getElementById("finalScore").textContent=firstCorrect+" von "+total;
@@ -345,6 +395,9 @@
       var a=+ar.value,b=+br.value;if((C.kind==="minus"||C.kind==="third")&&b>=a){b=a-1;br.value=b}
       document.getElementById("av").textContent=a;document.getElementById("bv").textContent=b;
       modelValues={a:a,b:b};saveState();
+      ["o7","o8"].forEach(function(id){var ael=document.getElementById("a-"+id),bel=document.getElementById("b-"+id);if(ael)ael.textContent="a = "+a;if(bel)bel.textContent="b = "+b;
+        var ra=document.getElementById("ra-"+id),rb=document.getElementById("rb-"+id),ma=document.getElementById("ma-"+id),mb=document.getElementById("mb-"+id);
+        if(ra)ra.value=a;if(rb)rb.value=b;if(ma)ma.textContent=a;if(mb)mb.textContent=b;});
       var r=document.getElementById("numericResult");
       if(C.kind==="plus"){
         var g=document.getElementById("plusGrid");g.style.gridTemplateColumns=a+"fr "+b+"fr";g.style.gridTemplateRows=a+"fr "+b+"fr";
@@ -404,6 +457,60 @@
       if(C.kind==="mixed"&&idx>=3)return "Die Klammerform ist noch nicht passend. "+p[2];
       return "Deine Eingabe „"+v+"“ passt noch nicht. "+p[3];
     }
+    // Zusätzliche eigenständige Entdeckerschritte der 1. Formel.
+    window.__tapArea=function(n){
+      if(mode!=="first")return;
+      areaRevealed[n]=true;
+      var el=document.querySelector('.area-tap[data-area="'+n+'"]');
+      if(el)el.innerHTML=['a<sup>2</sup>','ab','ab','b<sup>2</sup>'][n];
+      saveState();
+    };
+    window.__toggleCalc=function(){
+      var el=document.getElementById("numericResult"),btn=document.getElementById("calcToggle");
+      showNumeric=!showNumeric;el.hidden=!showNumeric;
+      btn.setAttribute("aria-expanded",String(showNumeric));btn.textContent=showNumeric?"🧮 Zahlenkontrolle verbergen":"🧮 Zahlenkontrolle anzeigen";
+      saveState();
+    };
+    window.__expRange=function(id,key,value){
+      var range=document.getElementById(key==="a"?"aRange":"bRange");
+      if(range){range.value=value;updateModel()}
+    };
+    window.__experiment=function(id){
+      if(solved[id])return;
+      var a=+document.getElementById("aRange").value,b=+document.getElementById("bRange").value;
+      var aTarget=id==="o7"?6:4,bTarget=id==="o7"?3:2;
+      var input=document.getElementById("i-"+id),v=input.value.trim(),expected=id==="o7"?81:16;
+      if(a!==aTarget||b!==bTarget){
+        mark(id,false,"","Du hast a = "+a+" und b = "+b+" eingestellt. Stelle zuerst a = "+aTarget+" und b = "+bTarget+" ein.","Kontrolliere beide Regler. Sie müssen zu den Zahlen in der Aufgabenstellung passen.");return;
+      }
+      if(v!==""&&Number(v)===expected){input.disabled=true;mark(id,true,"Gut! Du hast das Flächenmodell richtig ausgewertet.","","");return}
+      var first=id==="o7"?"Die gesamte Seitenlänge ist 6 + 3. Für die Fläche brauchst du Länge mal Breite.":"Jedes orange Rechteck ist 4 · 2 groß. Es gibt zwei davon.";
+      var second=id==="o7"?"Für die große Fläche rechnest du (6 + 3) · (6 + 3).":"Rechne 4 · 2 + 4 · 2 oder 2 · 4 · 2.";
+      mark(id,false,"",v===""?"Gib zuerst eine Flächenzahl in das Feld ein. "+first:first,second);
+    };
+    function chooseBuildAppearance(slot,val){
+      var group=document.querySelectorAll('.build-group')[slot];if(!group)return;
+      group.querySelectorAll('.build-option').forEach(function(b){var on=Number(b.dataset.val)===Number(val);b.classList.toggle("selected",on);b.setAttribute("aria-pressed",String(on))});
+      var previews=['a²','ab','2ab','b²'];var preview=document.getElementById("build"+slot);
+      if(preview)preview.textContent=previews[val]||"?";
+    }
+    window.__build=function(slot,val){
+      if(solved.h2)return;
+      builderSelections[slot]=val;chooseBuildAppearance(slot,val);saveState();
+    };
+    window.__checkBuild=function(){
+      if(solved.h2)return;
+      for(var slot=0;slot<3;slot++){
+        if(builderSelections[slot]==null){mark("h2",false,"","Du hast noch nicht alle drei Farbflächen zugeordnet. Beginne mit dem blauen Quadrat.","Jede Farbe benötigt einen Baustein.");return}
+      }
+      var correct=[0,2,3],names=["blauen Quadrat","beiden orangefarbenen Rechtecken","rosafarbenen Quadrat"];
+      for(var n=0;n<3;n++)if(Number(builderSelections[n])!==correct[n]){
+        var hints=["Ein Quadrat mit Seite a hat a · a als Fläche.","Es gibt zwei gleiche Rechtecke mit der Fläche a · b.","Die rosa Fläche ist ein Quadrat mit der Seitenlänge b."];
+        mark("h2",false,"","Prüfe den Baustein beim "+names[n]+". "+hints[n],"Schau noch einmal auf das "+names[n]+" im Modell. "+hints[n]);return;
+      }
+      document.querySelectorAll(".build-option").forEach(function(b){b.disabled=true});
+      mark("h2",true,"Du hast alle Flächenteile korrekt zusammengesetzt!","","");
+    };
     window.__mc=function(id,pick,ans,btn,h1,h2){
       if(solved[id])return;
       picked[id]=pick;
