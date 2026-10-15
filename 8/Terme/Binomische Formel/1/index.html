@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0f2942">
+  <title>Binomische Formeln entdecken</title>
+  <style>
+    :root{--ink:#12314b;--muted:#5c7081;--paper:#fffdf7;--cream:#f6f0df;--line:#c8dce6;--teal:#0d9488;--teal2:#dff7f1;--blue:#2563eb;--blue2:#e5efff;--orange:#f97316;--orange2:#fff0df;--pink:#e84a8a;--pink2:#fde7f1;--red:#d84646;--green:#18864b;--shadow:0 12px 32px rgba(18,49,75,.12)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:Inter,ui-rounded,"Avenir Next",system-ui,-apple-system,Segoe UI,sans-serif;background-color:var(--cream);background-image:linear-gradient(rgba(63,132,160,.13) 1px,transparent 1px),linear-gradient(90deg,rgba(63,132,160,.13) 1px,transparent 1px);background-size:24px 24px;line-height:1.5}
+    button,input,select{font:inherit}.top{position:sticky;top:0;z-index:20;background:rgba(15,41,66,.96);color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.16)}.top-inner{max-width:1180px;margin:auto;padding:12px 22px;display:grid;grid-template-columns:minmax(260px,1fr) minmax(280px,1.25fr) auto;gap:24px;align-items:center}.brand{display:flex;gap:12px;align-items:center}.brand-mark{width:42px;height:42px;border-radius:13px;background:#fff;color:var(--teal);display:grid;place-items:center;font-size:22px;font-weight:900;transform:rotate(-2deg)}.brand small{display:block;opacity:.7;text-transform:uppercase;letter-spacing:.12em;font-size:10px}.brand strong{display:block;font-size:17px}.progress-wrap{display:flex;align-items:center;gap:10px}.progress{height:10px;flex:1;border-radius:99px;background:rgba(255,255,255,.18);overflow:hidden}.progress>span{display:block;width:0;height:100%;border-radius:99px;background:linear-gradient(90deg,#2dd4bf,#60a5fa);transition:width .35s}.score{font-size:13px;white-space:nowrap}.reset{min-height:42px;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;border-radius:12px;padding:8px 13px;cursor:pointer}
+    main{max-width:1180px;margin:auto;padding:30px 22px 70px}.hero{display:grid;grid-template-columns:1.18fr .82fr;gap:22px;align-items:stretch}.paper{background:rgba(255,253,247,.96);border:1px solid rgba(18,49,75,.14);border-radius:26px;box-shadow:var(--shadow)}.hero-copy{padding:34px 36px;position:relative;overflow:hidden}.hero-copy:after{content:"";position:absolute;width:170px;height:170px;border-radius:50%;right:-50px;bottom:-80px;background:var(--teal2)}.kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:99px;background:var(--teal2);color:#08766d;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.06em}.hero h1{font-size:clamp(34px,5vw,64px);line-height:1.02;margin:18px 0 13px;letter-spacing:-.045em;max-width:780px}.hero p{font-size:18px;color:var(--muted);max-width:680px;margin:0;position:relative;z-index:1}.mission{padding:28px;display:flex;flex-direction:column;justify-content:space-between;background:#12314b;color:#fff;position:relative;overflow:hidden}.mission:before{content:"✦";font-size:150px;position:absolute;right:-18px;top:-52px;color:rgba(255,255,255,.05)}.mission h2{margin:0 0 8px;font-size:22px}.mission p{margin:0;color:#cad8e3}.mission-rule{font-family:"Comic Sans MS","Bradley Hand",cursive;font-size:20px;background:#fff7bb;color:#3e3b20;padding:14px 16px;margin-top:22px;transform:rotate(-1deg);box-shadow:0 5px 0 rgba(0,0,0,.15)}
+    .path{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:22px 0}.path button{border:0;background:rgba(255,253,247,.9);color:var(--ink);padding:12px 8px;border-radius:15px;box-shadow:0 4px 12px rgba(18,49,75,.09);font-weight:800;cursor:pointer;min-height:62px}.path button span{display:block;font-size:11px;color:var(--muted);font-weight:650}.path button.done{background:var(--teal);color:white}.path button.done span{color:#dffff9}.path button.locked{opacity:.48;cursor:not-allowed}
+    section.phase{margin-top:24px;padding:30px}.phase.locked{position:relative;max-height:190px;overflow:hidden;filter:saturate(.5)}.phase.locked:after{content:"🔒 Löse zuerst die vorherige Station.";position:absolute;inset:0;background:rgba(246,240,223,.88);display:grid;place-items:center;font-weight:900;font-size:18px}.phase-head{display:flex;gap:18px;align-items:flex-start;margin-bottom:24px}.phase-no{flex:0 0 50px;height:50px;border-radius:16px;display:grid;place-items:center;background:var(--ink);color:#fff;font-weight:900;font-size:22px;box-shadow:0 5px 0 #071b2c}.phase h2{font-size:30px;line-height:1.1;margin:2px 0 6px}.phase-head p{margin:0;color:var(--muted)}.rule-tape{display:inline-block;background:#fff2a8;padding:6px 14px;transform:rotate(-1deg);font-family:"Comic Sans MS","Bradley Hand",cursive;font-size:19px}
+    .model-layout{display:grid;grid-template-columns:minmax(300px,.95fr) minmax(320px,1.05fr);gap:24px}.model-card{border-radius:22px;background:#f8fbfc;border:2px solid #d9e9ef;padding:22px;min-height:360px}.controls{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:18px}.control{flex:1;min-width:130px}.control label{display:flex;justify-content:space-between;font-weight:800;margin-bottom:5px}.control input{width:100%;accent-color:var(--teal)}.formula-big{text-align:center;font-size:clamp(23px,3vw,36px);font-weight:900;letter-spacing:-.02em;margin:10px 0}.formula-big sup,.math sup{font-size:.6em}.formula-result{text-align:center;background:white;border:1px dashed #8fb3c4;border-radius:14px;padding:12px;font-weight:800}.area-plus{width:min(330px,90%);aspect-ratio:1;margin:16px auto;display:grid;border:4px solid var(--ink);box-shadow:6px 6px 0 #b8d8e4}.cell{display:grid;place-items:center;font-weight:900;font-size:clamp(16px,3vw,26px);border:1px solid rgba(18,49,75,.35);transition:.2s}.c1{background:#bfe8ff}.c2,.c3{background:#ffd59c}.c4{background:#f7b5d0}.cell.flash{filter:brightness(1.08);outline:5px solid #fff;z-index:2}.legend{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.tag{border-radius:99px;padding:5px 10px;font-size:12px;font-weight:800}.tag.a{background:#bfe8ff}.tag.ab{background:#ffd59c}.tag.b{background:#f7b5d0}
+    .minus-wrap{max-width:350px;margin:15px auto}.minus-square{aspect-ratio:1;background:#bfe8ff;border:4px solid var(--ink);position:relative;overflow:hidden;box-shadow:6px 6px 0 #b8d8e4}.minus-strip-v,.minus-strip-h{position:absolute;background:rgba(216,70,70,.56);display:grid;place-items:center;color:#722;font-weight:900}.minus-strip-v{right:0;top:0;height:100%}.minus-strip-h{left:0;bottom:0;width:100%}.minus-overlap{position:absolute;right:0;bottom:0;background:#f7b5d0;display:grid;place-items:center;font-weight:900;border:2px dashed #8f2854}.minus-core{position:absolute;left:0;top:0;display:grid;place-items:center;font-weight:900;font-size:22px;color:#0a5275}.signed-sum{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;font-weight:900;font-size:19px}.signed-sum span{padding:6px 9px;border-radius:9px}.pos{background:#d9f4ff}.neg{background:#ffdcdc;color:#912b2b}.addback{background:#f9d5e4}
+    .product-grid{max-width:430px;margin:18px auto;display:grid;grid-template-columns:1fr 1fr;border:4px solid var(--ink);box-shadow:6px 6px 0 #b8d8e4}.product-grid .cell{min-height:105px}.cancelled{text-decoration:line-through 5px var(--red);opacity:.55}.cancel-btn,.model-switch button{border:0;border-radius:12px;padding:10px 15px;background:var(--ink);color:white;font-weight:800;cursor:pointer}.model-switch{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:8px}.model-switch button{background:#dceaf0;color:var(--ink)}.model-switch button.active{background:var(--teal);color:#fff}.formula-deck{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}.formula-card{border:2px solid #d9e9ef;background:#fff;border-radius:18px;padding:18px;cursor:pointer;text-align:left;color:var(--ink)}.formula-card.active{border-color:var(--teal);box-shadow:0 0 0 4px var(--teal2)}.formula-card strong{display:block;font-size:18px;margin-bottom:8px}.formula-card .math{font-size:20px;font-weight:900}.focus-note{margin-top:14px;background:var(--teal2);border-radius:14px;padding:14px}
+    .questions{display:grid;gap:14px}.question{border:1px solid #d7e4e9;border-left:6px solid var(--blue);background:#fff;border-radius:16px;padding:18px}.question.solved{border-left-color:var(--green);background:#f3fff7}.q-label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--blue);font-weight:900}.q-text{font-weight:850;font-size:18px;margin:5px 0 12px}.choices{display:flex;gap:9px;flex-wrap:wrap}.choice{border:2px solid #c9dbe3;background:#fff;color:var(--ink);border-radius:12px;padding:11px 15px;font-weight:750;cursor:pointer;min-height:46px}.choice:hover,.choice:focus{border-color:var(--blue)}.choice.correct{border-color:var(--green);background:#ddf8e8}.choice.wrong{border-color:var(--red);background:#ffe5e5}.feedback{min-height:24px;margin-top:9px;font-size:14px;font-weight:750}.feedback.ok{color:var(--green)}.feedback.no{color:#a02c2c}.hint{display:inline-block;margin-top:7px;background:#fff4bd;color:#594e12;padding:8px 11px;border-radius:9px}
+    .hypothesis{background:#effffb;border:2px dashed var(--teal);padding:22px;border-radius:20px}.hypothesis h3{margin-top:0}.match-board{display:grid;gap:12px}.match-row{display:grid;grid-template-columns:minmax(190px,.85fr) 46px minmax(220px,1.15fr) auto;align-items:center;gap:12px;padding:14px;background:#f8fbfc;border:1px solid #d7e4e9;border-radius:15px}.term{font-size:19px;font-weight:900;text-align:center}.arrow{font-size:24px;text-align:center;color:var(--orange)}select,.answer-input{width:100%;min-height:48px;border:2px solid #bfd1da;border-radius:11px;padding:8px 12px;background:#fff;color:var(--ink)}.check{border:0;background:var(--teal);color:white;border-radius:11px;padding:11px 15px;font-weight:850;cursor:pointer;min-height:46px}.check:disabled{opacity:.5}.detect-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.detect{background:#fffaf3;border:1px solid #f0d8b9;border-radius:18px;padding:18px}.detect .claim{font-size:20px;font-weight:900;min-height:72px}.detect-actions{display:flex;gap:8px}.detect-actions .choice{flex:1}.practice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.practice{background:#f8fbfc;border:1px solid #d7e4e9;border-radius:17px;padding:18px}.practice .prompt{font-size:20px;font-weight:900;margin-bottom:11px}.input-row{display:grid;grid-template-columns:1fr auto;gap:9px}.completion{display:none;text-align:center;margin-top:26px;padding:28px;border-radius:22px;background:linear-gradient(135deg,#0d9488,#2563eb);color:#fff}.completion.show{display:block}.completion .big{font-size:42px;font-weight:950}.completion p{margin:5px auto;max-width:620px}.footer-note{text-align:center;color:var(--muted);font-size:13px;margin-top:22px}
+    /* Große mathematische Auswahlfelder für Touchscreens statt iPad-Select-Menüs */
+    .match-row{grid-template-columns:minmax(145px,.6fr) minmax(260px,1.55fr) auto;align-items:center;gap:14px}
+    .match-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .match-option{min-height:58px;padding:10px 8px;border:2px solid #b9d0de;border-radius:12px;background:white;color:var(--ink);font-size:clamp(15px,1.6vw,19px);font-weight:800;cursor:pointer;line-height:1.4;overflow-wrap:anywhere}
+    .match-option sup,.prompt sup{font-size:.68em;line-height:0;vertical-align:super}
+    .match-option.selected{border-color:var(--blue);background:#e5efff;box-shadow:0 0 0 2px #99bfff inset}
+    .match-option:focus-visible,.square-key:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+    .match-option:disabled{opacity:.88;cursor:default}
+    .square-key{background:#e5efff;color:#12314b;border:2px solid #8bb7e4;border-radius:11px;min-height:50px;min-width:54px;padding:5px 12px;font-size:24px;font-weight:900;cursor:pointer}
+    .square-key:disabled{opacity:.5;cursor:default}
+    .answer-tools{display:flex;gap:8px;align-items:stretch;min-width:0}
+    .answer-tools .answer-input{flex:1;min-width:0;font-size:18px;outline-offset:2px}
+    .input-row{grid-template-columns:minmax(0,1fr) auto;align-items:stretch}
+    .math-preview{border:1px dashed #bfd1da;padding:7px 10px;border-radius:10px;background:#fff;color:#567184;margin-top:9px;min-height:37px;font-size:17px;overflow-wrap:anywhere}
+    .math-preview b{color:#12314b}
+    .square-help{margin-top:8px;font-size:13px;color:var(--muted)}
+    .square-help b{color:var(--ink)}
+    .save-note{font-size:13px;color:var(--muted);text-align:center;margin:10px 0}
+    @media(max-width:850px){.top-inner{grid-template-columns:1fr auto}.progress-wrap{grid-column:1/-1;grid-row:2}.hero,.model-layout{grid-template-columns:1fr}.path{grid-template-columns:repeat(5,minmax(100px,1fr));overflow:auto;padding-bottom:5px}.detect-grid{grid-template-columns:1fr}.formula-deck{grid-template-columns:1fr}.match-row{grid-template-columns:1fr}.match-row .check{grid-column:1/-1}.practice-grid{grid-template-columns:1fr}}
+    @media(max-width:560px){main{padding:18px 12px 50px}.top-inner{padding:10px 12px;gap:10px}.brand strong{font-size:14px}.brand-mark{width:36px;height:36px}.reset{padding:6px 9px}.hero-copy,.mission,section.phase{padding:22px 18px}.hero h1{font-size:36px}.phase h2{font-size:26px}.phase-head{gap:12px}.phase-no{flex-basis:44px;height:44px}.model-card{padding:15px;min-height:0}.match-row{grid-template-columns:1fr}.match-options{grid-template-columns:1fr 1fr}.match-option{font-size:16px;min-height:62px}.match-row .check{grid-column:1/-1}.practice .prompt,.question .q-text{font-size:17px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <div class="brand"><div class="brand-mark">∑</div><div><small>Mathe 8 · II/III</small><strong id="brandTitle">Binomische Formel entdecken</strong></div></div>
+      <div class="progress-wrap"><div class="progress" aria-label="Lernfortschritt"><span id="progressBar"></span></div><div class="score"><b id="solvedCount">0</b>/16 gelöst</div></div>
+      <button class="reset" onclick="resetApp()" aria-label="Lernweg neu starten">↻ Neustart</button>
+    </div>
+  </header>
+  <main>
+    <div class="hero">
+      <article class="paper hero-copy">
+        <span class="kicker">🔎 Entdeckendes Lernen</span>
+        <h1 id="title">Eine binomische Formel entdecken</h1>
+        <p id="subtitle">Beobachte Muster, formuliere eine Vermutung und prüfe sie selbst.</p>
+      </article>
+      <aside class="paper mission">
+        <div><h2>Deine Mission</h2><p>Die Formel bleibt zunächst verdeckt. Erst deine Beobachtungen führen zur Regel.</p></div>
+        <div class="mission-rule" id="missionRule">Nicht raten – Strukturen nutzen!</div>
+      </aside>
+    </div>
+    <nav class="path" aria-label="Lernstationen" id="pathNav"></nav>
+    <div id="app"></div>
+    <p class="save-note" id="saveStatus" role="status">Der Lernfortschritt wird auf diesem Gerät automatisch gespeichert.</p>
+    <p class="footer-note">LehrplanPLUS Mathematik 8 · Realschule Bayern · Wahlpflichtfächergruppen II/III</p>
+  </main>
+  <script>
+  (function(){
+    "use strict";
+    var here=(location.hostname+" "+location.pathname+" "+document.title).toLowerCase();
+    var mode=here.indexOf("alle")>-1||here.indexOf("formeln-alle")>-1?"mixed":here.indexOf("formel-3")>-1?"third":here.indexOf("formel-2")>-1?"second":"first";
+    var DATA={
+      first:{
+        short:"1. binomische Formel",title:"Die 1. binomische Formel entdecken",subtitle:"Wie wird aus dem Quadrat einer Summe ein Term mit drei Gliedern?",rule:"Zwei gleich große Mischflächen sind der Schlüssel.",
+        formula:"(a + b)<sup>2</sup> = a<sup>2</sup> + 2ab + b<sup>2</sup>",kind:"plus",
+        obs:[
+          ["Aus wie vielen Teilflächen besteht das Quadrat? ",["2","3","4"],2,"Zähle jedes farbige Rechteck einzeln.","Es gibt a², ab, ab und b²."],
+          ["Welche Teilfläche kommt zweimal vor?",["a²","ab","b²"],1,"Vergleiche die beiden orangefarbenen Rechtecke.","Beide haben die Seitenlängen a und b."],
+          ["Welche Fläche hat das Quadrat für a = 5 und b = 2?",["25","29","49"],2,"Die gesamte Seitenlänge ist a + b.","(5 + 2)² = 7²."]
+        ],
+        hypotheses:[
+          "(a+b)<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>",
+          "(a+b)<sup>2</sup> = a<sup>2</sup> + 2ab + b<sup>2</sup>",
+          "(a+b)<sup>2</sup> = 2a<sup>2</sup> + 2b<sup>2</sup>"
+        ],hypAnswer:1,
+        matches:[
+          ["(x+3)<sup>2</sup>","x<sup>2</sup>+6x+9"],
+          ["(2x+y)<sup>2</sup>","4x<sup>2</sup>+4xy+y<sup>2</sup>"],
+          ["(3a+2)<sup>2</sup>","9a<sup>2</sup>+12a+4"],
+          ["(m+4n)<sup>2</sup>","m<sup>2</sup>+8mn+16n<sup>2</sup>"]
+        ],
+        detectives:[
+          ["(x+5)<sup>2</sup> = x<sup>2</sup>+25",false,"Das mittlere Glied 2·x·5 = 10x fehlt."],
+          ["(2a+b)<sup>2</sup> = 4a<sup>2</sup>+4ab+b<sup>2</sup>",true,"Alle drei Glieder sind richtig: (2a)², 2·2a·b und b²."],
+          ["(3x+2)<sup>2</sup> = 9x<sup>2</sup>+6x+4",false,"Das mittlere Glied ist 2·3x·2 = 12x."]
+        ],
+        practice:[
+          ["(x+4)<sup>2</sup>",["x^2+8x+16"],"Bestimme zuerst x² und 4².","Das mittlere Glied lautet 2·x·4 = 8x."],
+          ["(a+7)<sup>2</sup>",["a^2+14a+49"],"Quadriere beide Summanden.","2·a·7 = 14a."],
+          ["(2x+3)<sup>2</sup>",["4x^2+12x+9"],"(2x)² = 4x².","2·2x·3 = 12x."],
+          ["(3m+n)<sup>2</sup>",["9m^2+6mn+n^2"],"Erstes Glied: (3m)².","Mittleres Glied: 2·3m·n."],
+          ["(2a+5b)<sup>2</sup>",["4a^2+20ab+25b^2"],"Quadriere 2a und 5b getrennt.","Mittleres Glied: 2·2a·5b = 20ab."]
+        ]
+      },
+      second:{
+        short:"2. binomische Formel",title:"Die 2. binomische Formel entdecken",subtitle:"Warum bleibt das letzte Glied positiv, obwohl in der Klammer ein Minus steht?",rule:"Zweimal abziehen – die Überlappung einmal zurückgeben.",
+        formula:"(a − b)<sup>2</sup> = a<sup>2</sup> − 2ab + b<sup>2</sup>",kind:"minus",
+        obs:[
+          ["Welche Fläche beschreibt (a−b)²?",["Ein Rechteck a·b","Ein Quadrat mit Seite a−b","Ein Quadrat mit Seite a+b"],1,"Lies die Klammer als Seitenlänge.","Die Seitenlänge des kleinen Quadrats ist a−b."],
+          ["Warum wird b² am Ende addiert?",["Weil die Überlappung zweimal abgezogen wurde","Weil Minus immer Plus wird","Weil b² größer als ab ist"],0,"Betrachte die Ecke, in der sich beide roten Streifen überdecken.","Diese Ecke wurde beim Abziehen beider Streifen doppelt entfernt."],
+          ["Welche Fläche entsteht für a = 7 und b = 2?",["25","45","81"],0,"Die Seitenlänge ist 7−2.","(7−2)² = 5²."]
+        ],
+        hypotheses:[
+          "(a−b)<sup>2</sup> = a<sup>2</sup> − b<sup>2</sup>",
+          "(a−b)<sup>2</sup> = a<sup>2</sup> − 2ab + b<sup>2</sup>",
+          "(a−b)<sup>2</sup> = a<sup>2</sup> + 2ab + b<sup>2</sup>"
+        ],hypAnswer:1,
+        matches:[
+          ["(x−3)<sup>2</sup>","x<sup>2</sup>−6x+9"],
+          ["(2x−y)<sup>2</sup>","4x<sup>2</sup>−4xy+y<sup>2</sup>"],
+          ["(3a−2)<sup>2</sup>","9a<sup>2</sup>−12a+4"],
+          ["(m−4n)<sup>2</sup>","m<sup>2</sup>−8mn+16n<sup>2</sup>"]
+        ],
+        detectives:[
+          ["(x−5)<sup>2</sup> = x<sup>2</sup>−25",false,"Das mittlere Glied −10x fehlt; außerdem ist (−5)² positiv."],
+          ["(2a−b)<sup>2</sup> = 4a<sup>2</sup>−4ab+b<sup>2</sup>",true,"Das Minus betrifft nur das mittlere Glied; beide Quadrate sind positiv."],
+          ["(3x−2)<sup>2</sup> = 9x<sup>2</sup>−6x+4",false,"Das mittlere Glied ist −2·3x·2 = −12x."]
+        ],
+        practice:[
+          ["(x−4)<sup>2</sup>",["x^2-8x+16"],"Die Quadrate sind positiv.","Mittleres Glied: −2·x·4."],
+          ["(a−7)<sup>2</sup>",["a^2-14a+49"],"Quadriere a und 7.","Das Minus steht beim mittleren Glied."],
+          ["(2x−3)<sup>2</sup>",["4x^2-12x+9"],"(2x)² = 4x².","−2·2x·3 = −12x."],
+          ["(3m−n)<sup>2</sup>",["9m^2-6mn+n^2"],"Erstes Glied: (3m)².","Mittleres Glied: −2·3m·n."],
+          ["(2a−5b)<sup>2</sup>",["4a^2-20ab+25b^2"],"Beide Quadrate bleiben positiv.","Mittleres Glied: −2·2a·5b."]
+        ]
+      },
+      third:{
+        short:"3. binomische Formel",title:"Die 3. binomische Formel entdecken",subtitle:"Was geschieht, wenn sich nur die Rechenzeichen in zwei Klammern unterscheiden?",rule:"Die beiden Mischprodukte sind Gegenzahlen – sie heben sich auf.",
+        formula:"(a + b)(a − b) = a<sup>2</sup> − b<sup>2</sup>",kind:"third",
+        obs:[
+          ["Wie viele Teilprodukte entstehen zunächst?",["2","3","4"],2,"Jeder Term der ersten Klammer wird mit jedem Term der zweiten multipliziert.","2 · 2 Verbindungen ergeben vier Produkte."],
+          ["Welche beiden Teilprodukte heben sich auf?",["a² und −b²","−ab und +ab","a² und +ab"],1,"Suche zwei Gegenzahlen.","−ab + ab = 0."],
+          ["Welchen Wert hat (7+2)(7−2)?",["25","45","49"],1,"Berechne beide Klammern.","9·5 = 45; ebenso 7²−2² = 49−4."]
+        ],
+        hypotheses:[
+          "(a+b)(a−b) = a<sup>2</sup>−b<sup>2</sup>",
+          "(a+b)(a−b) = a<sup>2</sup>−2ab+b<sup>2</sup>",
+          "(a+b)(a−b) = a<sup>2</sup>+b<sup>2</sup>"
+        ],hypAnswer:0,
+        matches:[
+          ["(x+3)(x−3)","x<sup>2</sup>−9"],
+          ["(2x+y)(2x−y)","4x<sup>2</sup>−y<sup>2</sup>"],
+          ["(3a+2)(3a−2)","9a<sup>2</sup>−4"],
+          ["(m+4n)(m−4n)","m<sup>2</sup>−16n<sup>2</sup>"]
+        ],
+        detectives:[
+          ["(x+5)(x−5) = x<sup>2</sup>−25",true,"Die Mischprodukte −5x und +5x heben sich auf."],
+          ["(2a+b)(2a−b) = 4a<sup>2</sup>−4ab−b<sup>2</sup>",false,"Die Mischprodukte heben sich vollständig auf; es bleibt kein ab-Term."],
+          ["(3x+2)(3x−2) = 9x<sup>2</sup>−4",true,"Das ist die Differenz der Quadrate (3x)² und 2²."]
+        ],
+        practice:[
+          ["(x+4)(x−4)",["x^2-16"],"Nutze die Differenz zweier Quadrate.","x² − 4²."],
+          ["(a+7)(a−7)",["a^2-49"],"Die Mischprodukte fallen weg.","7² = 49."],
+          ["(2x+3)(2x−3)",["4x^2-9"],"Quadriere 2x und 3.","(2x)² − 3²."],
+          ["(3m+n)(3m−n)",["9m^2-n^2"],"Beide Klammern unterscheiden sich nur im Vorzeichen.","(3m)² − n²."],
+          ["(2a+5b)(2a−5b)",["4a^2-25b^2"],"Quadriere beide Termbausteine.","(2a)² − (5b)²."]
+        ]
+      },
+      mixed:{
+        short:"Alle drei Formeln",title:"Alle drei binomischen Formeln unterscheiden",subtitle:"Erkenne die Struktur, wähle begründet und wende die passende Formel auch rückwärts an.",rule:"Erst Klammerstruktur lesen, dann die Formel wählen.",
+        formula:"Drei Muster – eine sichere Strategie",kind:"mixed",
+        obs:[
+          ["Welche Struktur gehört zur 1. Formel?",["Zwei gleiche Plusklammern","Zwei gleiche Minusklammern","Eine Plus- und eine Minusklammer"],0,"Achte auf zwei identische Klammern.","(a+b)·(a+b) = (a+b)²."],
+          ["Welche Struktur gehört zur 2. Formel?",["Zwei gleiche Plusklammern","Zwei gleiche Minusklammern","Eine Plus- und eine Minusklammer"],1,"Das Quadrat bedeutet zwei identische Faktoren.","(a−b)·(a−b) = (a−b)²."],
+          ["Woran erkennst du die 3. Formel?",["An zwei Quadraten","An drei Termen","An gleichen Termen mit verschiedenen Vorzeichen"],2,"Vergleiche beide Klammern Zeichen für Zeichen.","(a+b)(a−b): Nur das Rechenzeichen unterscheidet sich."]
+        ],
+        hypotheses:[
+          "Ich quadriere immer nur den ersten und letzten Term.",
+          "Klammerzahl und Vorzeichen zeigen mir, welche der drei Strukturen vorliegt.",
+          "Ein Minus vor b führt immer zu einem negativen b²."
+        ],hypAnswer:1,
+        matches:[
+          ["(x+4)<sup>2</sup>","x<sup>2</sup>+8x+16"],
+          ["(x−4)<sup>2</sup>","x<sup>2</sup>−8x+16"],
+          ["(x+4)(x−4)","x<sup>2</sup>−16"],
+          ["(2x−y)<sup>2</sup>","4x<sup>2</sup>−4xy+y<sup>2</sup>"]
+        ],
+        detectives:[
+          ["(a−b)<sup>2</sup> = a<sup>2</sup>−b<sup>2</sup>",false,"Hier wurden 2. und 3. Formel verwechselt. Bei der 2. Formel gibt es drei Glieder."],
+          ["(a+b)(a−b) = a<sup>2</sup>−b<sup>2</sup>",true,"Die Mischprodukte −ab und +ab heben sich auf."],
+          ["(2x+3)<sup>2</sup> = 4x<sup>2</sup>+12x+9",true,"Alle drei Glieder der 1. Formel wurden korrekt gebildet."]
+        ],
+        practice:[
+          ["(x+5)<sup>2</sup>",["x^2+10x+25"],"Zwei gleiche Plusklammern: 1. Formel.","Mittleres Glied: 2·x·5."],
+          ["(x−4)<sup>2</sup>",["x^2-8x+16"],"Zwei gleiche Minusklammern: 2. Formel.","Nur das mittlere Glied ist negativ."],
+          ["(3x+2)(3x−2)",["9x^2-4"],"Gleiche Terme, verschiedene Vorzeichen: 3. Formel.","(3x)² − 2²."],
+          ["x<sup>2</sup>+12x+36",["(x+6)^2","(6+x)^2"],"Arbeite rückwärts: 36 = 6².","12x = 2·x·6."],
+          ["25a<sup>2</sup>−9",["(5a+3)(5a-3)","(5a-3)(5a+3)"],"Das ist eine Differenz zweier Quadrate.","25a² = (5a)² und 9 = 3²."]
+        ]
+      }
+    };
+    var C=DATA[mode],total=16;
+    // Getrennter Fortschritt für jede der vier Varianten; bleibt nach Schließen/Neuladen erhalten.
+    var STORAGE_KEY="mathe8.binomische-entdecken.v4."+mode;
+    function loadState(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"null")||{}}catch(e){return {}}}
+    var remembered=loadState();
+    var solved=remembered.solved||{},attempts=remembered.attempts||{};
+    var firstCorrect=Number(remembered.firstCorrect)||0;
+    var matchSelections=remembered.matchSelections||{},inputValues=remembered.inputValues||{};
+    var picked=remembered.picked||{},feedbacks=remembered.feedbacks||{};
+    var modelValues=remembered.modelValues||{},focusKey=remembered.focusKey||"f1";
+    var cancelledFlag=Boolean(remembered.cancelledFlag);
+    function saveState(){
+      var state={solved:solved,attempts:attempts,firstCorrect:firstCorrect,matchSelections:matchSelections,
+        inputValues:inputValues,picked:picked,feedbacks:feedbacks,modelValues:modelValues,
+        focusKey:focusKey,cancelledFlag:cancelledFlag};
+      try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));return true}
+      catch(e){var info=document.getElementById("saveStatus");if(info)info.textContent="⚠ Automatisches Speichern ist in diesem Browser nicht verfügbar.";return false}
+    }
+    var phaseIds=[["o1","o2","o3"],["h1"],["m1","m2","m3","m4"],["d1","d2","d3"],["p1","p2","p3","p4","p5"]];
+    var phaseNames=[["Beobachten","Flächen & Muster"],["Vermuten","Regel formulieren"],["Prüfen","Verbindungen"],["Untersuchen","Fehlerdetektiv"],["Sichern","Selbst anwenden"]];
+    function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+    function qCard(id,label,q,options,answer,h1,h2){
+      var b=options.map(function(x,i){return '<button class="choice" onclick="window.__mc(\''+id+'\','+i+','+answer+',this,\''+esc(h1).replace(/'/g,"&#39;")+'\',\''+esc(h2).replace(/'/g,"&#39;")+'\')">'+x+'</button>'}).join("");
+      return '<article class="question" id="q-'+id+'"><div class="q-label">'+label+'</div><div class="q-text">'+q+'</div><div class="choices">'+b+'</div><div class="feedback" id="f-'+id+'" aria-live="polite"></div></article>';
+    }
+    function modelHtml(){
+      if(C.kind==="mixed"){
+        return '<div class="model-card"><div class="formula-big">Welche Struktur siehst du?</div><div class="formula-deck">'+
+          '<button class="formula-card active" data-key="f1" onclick="window.__focus(this,\'f1\')"><strong>1. Formel</strong><div class="math">(a+b)<sup>2</sup></div><small>gleiche Plusklammern</small></button>'+
+          '<button class="formula-card" data-key="f2" onclick="window.__focus(this,\'f2\')"><strong>2. Formel</strong><div class="math">(a−b)<sup>2</sup></div><small>gleiche Minusklammern</small></button>'+
+          '<button class="formula-card" data-key="f3" onclick="window.__focus(this,\'f3\')"><strong>3. Formel</strong><div class="math">(a+b)(a−b)</div><small>Plus- und Minusklammer</small></button></div><div class="focus-note" id="focusNote"><b>1. Formel:</b> Zwei gleiche Plusklammern erzeugen zwei positive Mischprodukte.</div></div>';
+      }
+      var controls='<div class="controls"><div class="control"><label>a <b id="av">5</b></label><input id="aRange" type="range" min="3" max="9" value="'+(C.kind==="plus"?5:7)+'" oninput="window.__model()"></div><div class="control"><label>b <b id="bv">2</b></label><input id="bRange" type="range" min="1" max="5" value="2" oninput="window.__model()"></div></div>';
+      if(C.kind==="plus")return '<div class="model-card">'+controls+'<div class="formula-big">Fläche: (a+b)<sup>2</sup></div><div class="area-plus" id="plusGrid"><div class="cell c1">a²</div><div class="cell c2">ab</div><div class="cell c3">ab</div><div class="cell c4">b²</div></div><div class="legend"><span class="tag a">a²</span><span class="tag ab">2 · ab</span><span class="tag b">b²</span></div><div class="formula-result" id="numericResult"></div></div>';
+      if(C.kind==="minus")return '<div class="model-card">'+controls+'<div class="formula-big">Fläche: (a−b)<sup>2</sup></div><div class="minus-wrap"><div class="minus-square" id="minusSquare"><div class="minus-core" id="minusCore">(a−b)²</div><div class="minus-strip-v" id="stripV">−ab</div><div class="minus-strip-h" id="stripH">−ab</div><div class="minus-overlap" id="overlap">+b²</div></div></div><div class="signed-sum"><span class="pos">a²</span><span class="neg">−ab</span><span class="neg">−ab</span><span class="addback">+b²</span></div><div class="formula-result" id="numericResult"></div></div>';
+      return '<div class="model-card">'+controls+'<div class="formula-big">(a+b)(a−b)</div><div class="product-grid"><div class="cell c1">a²</div><div class="cell c2 middle">−ab</div><div class="cell c3 middle">+ab</div><div class="cell c4">−b²</div></div><div style="text-align:center"><button class="cancel-btn" onclick="window.__cancel(this)">Gegenterme aufheben</button></div><div class="formula-result" id="numericResult"></div></div>';
+    }
+    function render(){
+      document.title=C.title+" · Mathe 8";
+      document.getElementById("brandTitle").textContent=C.short;
+      document.getElementById("title").textContent=C.title;
+      document.getElementById("subtitle").textContent=C.subtitle;
+      document.getElementById("missionRule").textContent=C.rule;
+      document.getElementById("pathNav").innerHTML=phaseNames.map(function(p,i){return '<button id="nav'+i+'" class="'+(i?"locked":"")+'" onclick="window.__go('+i+')">'+(i+1)+'. '+p[0]+'<span>'+p[1]+'</span></button>'}).join("");
+      var obs=C.obs.map(function(o,i){return qCard("o"+(i+1),"Beobachtung "+(i+1),o[0],o[1],o[2],o[3],o[4])}).join("");
+      var hyp=qCard("h1","Deine Vermutung","Welche allgemeine Regel passt zu allen Beobachtungen?",C.hypotheses,C.hypAnswer,"Prüfe, ob alle Teilprodukte vorkommen.","Vergleiche mit den farbigen Flächen bzw. Teilprodukten.");
+      var opts=C.matches.map(function(x){return x[1]}).sort(function(a,b){return a.length-b.length});
+      // Native <option>-Elemente rendern kein HTML: x<sup>2</sup> wurde zu x2.
+      // Touch-Auswahl per Buttons zeigt jedes Quadrat korrekt hochgestellt.
+      var matches=C.matches.map(function(m,i){
+        var id="m"+(i+1);
+        var buttons=opts.map(function(o,j){return '<button type="button" class="match-option" data-option="'+j+'" aria-pressed="false" onclick="window.__chooseMatch(\''+id+'\','+j+',this)">'+o+'</button>'}).join("");
+        return '<article class="match-row question" id="q-'+id+'"><div class="term">'+m[0]+'</div><div class="match-options" role="group" aria-label="Term zu Aufgabe '+(i+1)+' auswählen">'+buttons+'</div><button class="check" onclick="window.__match(\''+id+'\')">Verbinden</button><div class="feedback" id="f-'+id+'" style="grid-column:1/-1"></div></article>';
+      }).join("");
+      var detectives=C.detectives.map(function(d,i){return '<article class="detect question" id="q-d'+(i+1)+'"><div class="q-label">Fall '+(i+1)+'</div><div class="claim">'+d[0]+'</div><div class="detect-actions"><button class="choice" onclick="window.__detect(\'d'+(i+1)+'\',true,'+d[1]+',this,\''+esc(d[2]).replace(/'/g,"&#39;")+'\')">✓ stimmt</button><button class="choice" onclick="window.__detect(\'d'+(i+1)+'\',false,'+d[1]+',this,\''+esc(d[2]).replace(/'/g,"&#39;")+'\')">⚠ Fehler</button></div><div class="feedback" id="f-d'+(i+1)+'"></div></article>'}).join("");
+      var practices=C.practice.map(function(p,i){
+        var id="p"+(i+1);
+        return '<article class="practice question" id="q-'+id+'"><div class="q-label">Aufgabe '+(i+1)+'</div><div class="prompt">'+p[0]+' =</div>'+
+          '<div class="input-row"><div class="answer-tools"><input class="answer-input" id="i-'+id+'" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Dein Ergebnisterm" placeholder="Ergebnis hier eingeben …" oninput="window.__typing(\''+id+'\')" onkeydown="if(event.key===\'Enter\')window.__practice(\''+id+'\')">'+
+          '<button type="button" class="square-key" onclick="window.__square(\''+id+'\')" aria-label="Hochzahl zwei an Cursorposition einfügen" title="Hochzahl ² einfügen">²</button></div><button class="check" onclick="window.__practice(\''+id+'\')">Prüfen</button></div>'+
+          '<div class="square-help">Tippe auf <b>²</b>, um ein <b>hoch 2</b> einzufügen.</div><div class="math-preview" id="v-'+id+'" aria-live="polite">Dein Term: <b>…</b></div><div class="feedback" id="f-'+id+'"></div></article>';
+      }).join("");
+      document.getElementById("app").innerHTML=
+        '<section class="phase paper" id="phase0"><div class="phase-head"><div class="phase-no">1</div><div><h2>Beobachten & verändern</h2><p>Nutze das Modell. Verändere die Werte und achte auf wiederkehrende Teile.</p></div></div><div class="model-layout">'+modelHtml()+'<div class="questions">'+obs+'</div></div></section>'+
+        '<section class="phase paper locked" id="phase1"><div class="phase-head"><div class="phase-no">2</div><div><h2>Eine Regel vermuten</h2><p>Entscheide erst jetzt, welche Regel deine Beobachtungen erklärt.</p></div></div><div class="hypothesis">'+hyp+'<div class="formula-big" id="revealedFormula" style="display:none">'+C.formula+'</div></div></section>'+
+        '<section class="phase paper locked" id="phase2"><div class="phase-head"><div class="phase-no">3</div><div><h2>Die Vermutung prüfen</h2><p>Tippe auf den passenden Ergebnisterm. Hochzahlen sind gut lesbar dargestellt.</p></div></div><div class="match-board">'+matches+'</div></section>'+
+        '<section class="phase paper locked" id="phase3"><div class="phase-head"><div class="phase-no">4</div><div><h2>Fehlerdetektiv</h2><p>Ist die Rechnung richtig? Entscheide und untersuche anschließend die Begründung.</p></div></div><div class="detect-grid">'+detectives+'</div></section>'+
+        '<section class="phase paper locked" id="phase4"><div class="phase-head"><div class="phase-no">5</div><div><h2>Erkenntnis sichern</h2><p>Schreibe deinen Ergebnisterm. Tippe für Quadrate einfach auf <b>²</b> neben dem Eingabefeld.</p></div></div><div class="rule-tape">'+C.formula+'</div><div class="practice-grid" style="margin-top:22px">'+practices+'</div><div class="completion" id="completion"><div class="big" id="finalScore"></div><h2>Entdeckungsreise abgeschlossen!</h2><p id="finalText"></p></div></section>';
+      restoreControls();updateModel();updateState();
+    }
+    function restoreControls(){
+      Object.keys(inputValues).forEach(function(id){var el=document.getElementById("i-"+id);if(el){el.value=inputValues[id];paintPreview(id)}});
+      Object.keys(matchSelections).forEach(function(id){
+        var q=document.getElementById("q-"+id);if(!q)return;
+        var choice=q.querySelector('.match-option[data-option="'+matchSelections[id]+'"]');
+        if(choice){choice.classList.add("selected");choice.setAttribute("aria-pressed","true")}
+      });
+      Object.keys(solved).forEach(function(id){
+        if(!solved[id])return;
+        var q=document.getElementById("q-"+id);if(!q)return;
+        q.classList.add("solved");
+        if(id[0]==="m")q.querySelectorAll(".match-option").forEach(function(b){b.disabled=true});
+        if(id[0]==="p"){
+          var input=document.getElementById("i-"+id);if(input)input.disabled=true;
+          var square=q.querySelector(".square-key");if(square)square.disabled=true;
+        }
+        if(id[0]==="o"||id[0]==="h"||id[0]==="d"){
+          q.querySelectorAll(".choice").forEach(function(b){b.disabled=true});
+          if(Object.prototype.hasOwnProperty.call(picked,id)){
+            var index=id[0]==="d"?(picked[id]?0:1):picked[id];
+            var b=q.querySelectorAll(".choice")[index];if(b)b.classList.add("correct");
+          }
+        }
+      });
+      Object.keys(feedbacks).forEach(function(id){
+        var f=document.getElementById("f-"+id);if(f){f.className="feedback "+(feedbacks[id].ok?"ok":"no");f.innerHTML=feedbacks[id].html}
+      });
+      if(modelValues.a!=null){var a=document.getElementById("aRange");if(a)a.value=modelValues.a}
+      if(modelValues.b!=null){var b=document.getElementById("bRange");if(b)b.value=modelValues.b}
+      if(cancelledFlag){document.querySelectorAll(".middle").forEach(function(x){x.classList.add("cancelled")});var c=document.querySelector(".cancel-btn");if(c)c.textContent="Gegenterme wieder zeigen"}
+      if(focusKey!=="f1"){
+        var b=document.querySelector('.formula-card[data-key="'+focusKey+'"]');if(b)window.__focus(b,focusKey,false);
+      }
+    }
+    function paintPreview(id){var i=document.getElementById("i-"+id),v=document.getElementById("v-"+id);if(i&&v){var b=v.querySelector("b");if(b)b.textContent=i.value.replace(/\^2/g,"²")||"…"}}
+    function currentPhase(id){for(var i=0;i<phaseIds.length;i++)if(phaseIds[i].indexOf(id)>-1)return i;return 0}
+    function mark(id,ok,message,h1,h2){
+      if(solved[id])return;
+      var f=document.getElementById("f-"+id),q=document.getElementById("q-"+id);
+      if(ok){
+        if(!attempts[id])firstCorrect++;
+        solved[id]=true;q.classList.add("solved");f.className="feedback ok";
+        f.innerHTML="✓ "+esc(message);feedbacks[id]={ok:true,html:f.innerHTML};
+        updateState();saveState();
+      }else{
+        attempts[id]=(attempts[id]||0)+1;f.className="feedback no";
+        var hint=(attempts[id]===1?h1:(h2||h1))||"Überprüfe die Regel Schritt für Schritt.";
+        f.innerHTML="Noch nicht. <span class=\"hint\">💡 "+esc(hint)+"</span>";
+        feedbacks[id]={ok:false,html:f.innerHTML};saveState();
+      }
+    }
+    function updateState(){
+      var n=Object.keys(solved).length;
+      document.getElementById("solvedCount").textContent=n;
+      document.getElementById("progressBar").style.width=(n/total*100)+"%";
+      for(var p=0;p<phaseIds.length;p++){
+        var unlocked=p===0||phaseIds[p-1].every(function(id){return solved[id]});
+        var done=phaseIds[p].every(function(id){return solved[id]});
+        var sec=document.getElementById("phase"+p),nav=document.getElementById("nav"+p);
+        if(sec){sec.classList.toggle("locked",!unlocked)}
+        if(nav){nav.classList.toggle("locked",!unlocked);nav.classList.toggle("done",done)}
+      }
+      if(solved.h1){var rf=document.getElementById("revealedFormula");if(rf)rf.style.display="block"}
+      if(n===total){
+        var c=document.getElementById("completion");c.classList.add("show");
+        document.getElementById("finalScore").textContent=firstCorrect+" von "+total;
+        document.getElementById("finalText").textContent="Aufgaben wurden beim ersten Versuch richtig gelöst. Korrigierte Versuche zählen zum Lernfortschritt, aber nicht zur Diagnose.";
+        setTimeout(function(){c.scrollIntoView({behavior:"smooth",block:"center"})},250);
+      }
+    }
+    function updateModel(){
+      var ar=document.getElementById("aRange"),br=document.getElementById("bRange");if(!ar||!br)return;
+      var a=+ar.value,b=+br.value;if((C.kind==="minus"||C.kind==="third")&&b>=a){b=a-1;br.value=b}
+      document.getElementById("av").textContent=a;document.getElementById("bv").textContent=b;
+      modelValues={a:a,b:b};saveState();
+      var r=document.getElementById("numericResult");
+      if(C.kind==="plus"){
+        var g=document.getElementById("plusGrid");g.style.gridTemplateColumns=a+"fr "+b+"fr";g.style.gridTemplateRows=a+"fr "+b+"fr";
+        r.innerHTML="Kontrolle: ("+a+"+"+b+")² = <b>"+((a+b)*(a+b))+"</b> = "+(a*a)+" + "+(2*a*b)+" + "+(b*b);
+      }else if(C.kind==="minus"){
+        var pct=b/a*100,remain=100-pct;
+        document.getElementById("stripV").style.width=pct+"%";document.getElementById("stripH").style.height=pct+"%";
+        var ov=document.getElementById("overlap");ov.style.width=pct+"%";ov.style.height=pct+"%";
+        var core=document.getElementById("minusCore");core.style.width=remain+"%";core.style.height=remain+"%";
+        r.innerHTML="Kontrolle: ("+a+"−"+b+")² = <b>"+((a-b)*(a-b))+"</b> = "+(a*a)+" − "+(2*a*b)+" + "+(b*b);
+      }else{
+        r.innerHTML="Kontrolle: ("+a+"+"+b+")("+a+"−"+b+") = <b>"+((a+b)*(a-b))+"</b> = "+(a*a)+" − "+(b*b);
+      }
+    }
+    function norm(s){return String(s).toLowerCase().replace(/[−–—]/g,"-").replace(/²/g,"^2").replace(/[·×*]/g,"").replace(/\s+/g,"").replace(/\+\-/g,"-").replace(/\^\(2\)/g,"^2")}
+    function mathText(html){return String(html).replace(/<sup>2<\/sup>/g,"²").replace(/<[^>]*>/g,"")}
+    function splitTerms(s){
+      var a=norm(s);if(a.indexOf("(")!==-1)return null;
+      return a.match(/[+-]?[^+-]+/g)||[];
+    }
+    function sameParts(a,b){if(!a||!b||a.length!==b.length)return false;return a.slice().sort().join("|")===b.slice().sort().join("|")}
+    // Unterschiedliche Fehlerrückmeldungen je nach gewähltem Ergebnis bzw. eingegebenem Term.
+    function matchHint(id){
+      var i=Number(id.slice(1))-1,m=C.matches[i],sel=matchSelections[id];
+      if(sel==null)return "Wähle zuerst einen der vier Ergebnisterme aus.";
+      var opts=C.matches.map(function(x){return x[1]}).sort(function(a,b){return a.length-b.length});
+      var actual=mathText(opts[sel]),expect=mathText(m[1]);
+      var a=splitTerms(actual),b=splitTerms(expect);
+      var taskSpecific={
+        first:["Bei (x+3)² entsteht das Mischglied aus 2 · x · 3.","Bei (2x+y)² musst du auch den Faktor 2 vor x quadrieren.","Bei (3a+2)² gilt: (3a)² = 9a².","Bei (m+4n)² musst du sowohl 4n quadrieren als auch das doppelte Produkt bilden."],
+        second:["Bei (x−3)² ist das Mischglied negativ, das letzte Quadrat positiv.","Bei (2x−y)² ist das doppelte Produkt −4xy.","Bei (3a−2)² ist das mittlere Glied −12a.","Bei (m−4n)² bleibt (4n)² positiv."],
+        third:["Bei (x+3)(x−3) fallen die beiden Mischglieder weg.","Bei (2x+y)(2x−y) ist (2x)² = 4x².","Bei (3a+2)(3a−2) verschwindet das Mischglied ganz.","Bei (m+4n)(m−4n) ist (4n)² = 16n²."],
+        mixed:["(x+4)² ist eine Plus-Klammer im Quadrat und hat drei Summanden.","(x−4)² hat ein negatives Mischglied.","(x+4)(x−4) ist die Differenz zweier Quadrate – ohne Mischglied.","Bei (2x−y)² musst du den ersten Summanden 2x vollständig quadrieren."]
+      }[mode][i];
+      var detail="";
+      if(a&&b&&a.length!==b.length)detail="Dein Term hat "+a.length+" Glieder, gesucht sind "+b.length+". ";
+      else if(a&&b&&a[0]!==b[0])detail="Kontrolliere besonders das erste Quadrat. ";
+      else if(a&&b&&a.length===3&&a[1]!==b[1])detail="Das mittlere Glied passt noch nicht. ";
+      else if(a&&b&&a[a.length-1]!==b[b.length-1])detail="Überprüfe das letzte Quadrat. ";
+      return "Du hast „"+actual+"“ gewählt. "+detail+taskSpecific;
+    }
+    function practiceHint(id,v){
+      var idx=Number(id.slice(1))-1,p=C.practice[idx],value=norm(v);
+      if(!value)return "Noch keine Eingabe. Beginne mit dem ersten Term und nutze bei Bedarf die ²-Taste.";
+      if(/[a-z]2/.test(value)&&!/[a-z]\^2/.test(value))return "Du hast vermutlich eine Hochzahl als normale 2 geschrieben. Nutze für ein Quadrat die Taste ² neben dem Feld.";
+      var expected=norm(p[1][0]),e=splitTerms(expected),got=splitTerms(value);
+      if(got&&e&&sameParts(got,e))return "Die Rechenglieder sind richtig, aber in einer anderen Reihenfolge. Prüfe bitte die Eingabe und die Zeichen noch einmal.";
+      if(got&&e&&got.length!==e.length){
+        if(e.length===3)return "Du hast "+got.length+" statt 3 Gliedern. Denke an: erstes Quadrat + doppeltes Produkt + zweites Quadrat. "+p[3];
+        return "Hier werden "+e.length+" Glieder benötigt, du hast "+got.length+". "+p[2];
+      }
+      if(got&&e&&got.length===e.length){
+        if(got[0]!==e[0])return "Das erste Quadrat ist noch nicht richtig. "+p[2];
+        if(e.length===3&&got[1]!==e[1])return "Das mittlere Glied stimmt noch nicht. "+p[3];
+        if(got[e.length-1]!==e[e.length-1])return "Überprüfe das letzte Glied und sein Vorzeichen. "+p[2];
+      }
+      if(C.kind==="mixed"&&idx>=3)return "Die Klammerform ist noch nicht passend. "+p[2];
+      return "Deine Eingabe „"+v+"“ passt noch nicht. "+p[3];
+    }
+    window.__mc=function(id,pick,ans,btn,h1,h2){
+      if(solved[id])return;
+      picked[id]=pick;
+      var q=document.getElementById("q-"+id),buttons=q.querySelectorAll(".choice");
+      buttons.forEach(function(b){b.classList.remove("wrong")});
+      if(pick===ans){btn.classList.add("correct");buttons.forEach(function(b){b.disabled=true});mark(id,true,"Das passt zu deiner Beobachtung.",h1,h2)}
+      else{
+        btn.classList.add("wrong");
+        var selected=buttons[pick].textContent;
+        mark(id,false,"","Du hast „"+selected+"“ gewählt. "+h1,"Du hast „"+selected+"“ gewählt. "+h2);
+      }
+    };
+    window.__chooseMatch=function(id,option,btn){
+      if(solved[id])return;
+      matchSelections[id]=option;
+      btn.parentElement.querySelectorAll(".match-option").forEach(function(b){var selected=b===btn;b.classList.toggle("selected",selected);b.setAttribute("aria-pressed",String(selected))});
+      saveState();
+    };
+    window.__match=function(id){
+      if(solved[id])return;
+      var m=C.matches[Number(id.slice(1))-1],option=matchSelections[id];
+      var opts=C.matches.map(function(x){return x[1]}).sort(function(a,b){return a.length-b.length});
+      var ok=option!=null&&norm(opts[option])===norm(m[1]);
+      if(ok){document.querySelectorAll("#q-"+id+" .match-option").forEach(function(b){b.disabled=true});mark(id,true,"Diese Zuordnung stimmt.","","")}
+      else{var hint=matchHint(id);mark(id,false,"",hint,hint)}
+    };
+    window.__detect=function(id,pick,truth,btn,explanation){
+      if(solved[id])return;
+      picked[id]=pick;
+      var ok=pick===truth;
+      if(ok){btn.classList.add("correct");document.querySelectorAll("#q-"+id+" .choice").forEach(function(b){b.disabled=true});mark(id,true,explanation,"","")}
+      else{
+        btn.classList.add("wrong");
+        var hint=truth?"Du hast einen Fehler vermutet. Prüfe erneut erstes Quadrat, doppeltes Produkt und letztes Quadrat.":"Du hast 'stimmt' gewählt. In dieser Rechnung ist mindestens ein Term falsch – prüfe besonders den Faktor 2 und die Vorzeichen.";
+        mark(id,false,"",hint,hint+" "+C.detectives[Number(id.slice(1))-1][2]);
+      }
+    };
+    window.__typing=function(id){
+      var input=document.getElementById("i-"+id);
+      inputValues[id]=input.value;
+      paintPreview(id);saveState();
+    };
+    window.__square=function(id){
+      var input=document.getElementById("i-"+id);if(!input||input.disabled)return;
+      input.focus();
+      var a=input.selectionStart==null?input.value.length:input.selectionStart;
+      var b=input.selectionEnd==null?a:input.selectionEnd;
+      if(typeof input.setRangeText==="function")input.setRangeText("²",a,b,"end");
+      else input.value=input.value.slice(0,a)+"²"+input.value.slice(b);
+      window.__typing(id);
+    };
+    window.__practice=function(id){
+      if(solved[id])return;
+      var idx=+id.slice(1)-1,p=C.practice[idx],v=document.getElementById("i-"+id).value;
+      var ok=p[1].some(function(a){return norm(a)===norm(v)});
+      if(ok){
+        document.getElementById("i-"+id).disabled=true;
+        document.querySelector("#q-"+id+" .square-key").disabled=true;
+        mark(id,true,"Richtig vereinfacht!",p[2],p[3]);
+      }else{var hint=practiceHint(id,v);mark(id,false,"",hint,hint)}
+    };
+    window.__model=updateModel;
+    window.__cancel=function(btn){
+      cancelledFlag=!cancelledFlag;
+      document.querySelectorAll(".middle").forEach(function(x){x.classList.toggle("cancelled",cancelledFlag)});
+      btn.textContent=cancelledFlag?"Gegenterme wieder zeigen":"Gegenterme aufheben";
+      saveState();
+    };
+    window.__focus=function(btn,key,shouldSave){
+      focusKey=key;
+      document.querySelectorAll(".formula-card").forEach(function(b){b.classList.remove("active")});btn.classList.add("active");
+      var notes={f1:"<b>1. Formel:</b> Zwei gleiche Plusklammern erzeugen zwei positive Mischprodukte.",f2:"<b>2. Formel:</b> Zwei gleiche Minusklammern erzeugen zwei negative Mischprodukte; b² bleibt positiv.",f3:"<b>3. Formel:</b> Plus- und Minusklammer erzeugen Gegenterme, die sich aufheben."};
+      document.getElementById("focusNote").innerHTML=notes[key];
+      if(shouldSave!==false)saveState();
+    };
+    window.__go=function(p){var sec=document.getElementById("phase"+p);if(!sec.classList.contains("locked"))sec.scrollIntoView({behavior:"smooth",block:"start"})};
+    window.resetApp=function(){
+      if(confirm("Möchtest du alle Antworten und den gespeicherten Lernfortschritt zurücksetzen?")){
+        try{localStorage.removeItem(STORAGE_KEY)}catch(e){}
+        location.reload();
+      }
+    };
+    render();
+  })();
+  </script>
+</body>
+</html>
